@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-01-02"
+  },
+  "supportedFrameworks": ["nextjs", "express", "fastify", "remix", "nuxt", "sveltekit"],
+  "incompatibleIntegrations": [],
+  "overlappingFeatures": [
+    {
+      "feature": "Payment Processing",
+      "integrations": ["lemonsqueezy", "paddle", "paypal"],
+      "notes": "Multiple payment processors may cause confusion. Consider using one primary payment provider."
+    },
+    {
+      "feature": "Subscription Management",
+      "integrations": ["lemonsqueezy"],
+      "notes": "Both Stripe and Lemon Squeezy offer subscription management."
+    }
+  ],
+  "softDependencies": ["resend", "sendgrid"]
+}

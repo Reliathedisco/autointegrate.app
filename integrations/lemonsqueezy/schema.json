@@ -1,0 +1,18 @@
+{
+  "name": "lemonsqueezy",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize Lemon Squeezy client",
+      "output": "lib/lemonsqueezy.ts"
+    },
+    "checkout": {
+      "description": "Checkout creation helpers",
+      "output": "lib/lemonsqueezy-checkout.ts"
+    },
+    "webhook": {
+      "description": "Webhook handler",
+      "output": "app/api/webhooks/lemonsqueezy/route.ts"
+    }
+  }
+}

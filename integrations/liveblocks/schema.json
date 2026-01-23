@@ -1,0 +1,14 @@
+{
+  "name": "liveblocks",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize Liveblocks client",
+      "output": "lib/liveblocks.ts"
+    },
+    "room": {
+      "description": "Room authentication",
+      "output": "lib/liveblocks-room.ts"
+    }
+  }
+}

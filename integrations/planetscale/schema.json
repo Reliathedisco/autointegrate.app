@@ -1,0 +1,14 @@
+{
+  "name": "planetscale",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize PlanetScale connection",
+      "output": "lib/planetscale.ts"
+    },
+    "client": {
+      "description": "Query helpers",
+      "output": "lib/planetscale-client.ts"
+    }
+  }
+}

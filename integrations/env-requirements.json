@@ -1,0 +1,326 @@
+{
+  "stripe": {
+    "STRIPE_SECRET_KEY": {
+      "description": "Stripe secret API key for server-side operations",
+      "required": true,
+      "format": "regex:^sk_(test|live)_[a-zA-Z0-9]+$",
+      "example": "sk_test_51ABC...",
+      "setupSteps": ["Go to Stripe Dashboard > Developers > API keys", "Copy your Secret key (test or live mode)"],
+      "dashboardUrl": "https://dashboard.stripe.com/apikeys"
+    },
+    "STRIPE_WEBHOOK_SECRET": {
+      "description": "Webhook signing secret for verifying webhook events",
+      "required": false,
+      "format": "regex:^whsec_[a-zA-Z0-9]+$",
+      "example": "whsec_abc123...",
+      "setupSteps": ["Go to Stripe Dashboard > Developers > Webhooks", "Add an endpoint and copy the signing secret"],
+      "dashboardUrl": "https://dashboard.stripe.com/webhooks"
+    }
+  },
+  "clerk": {
+    "CLERK_PUBLISHABLE_KEY": {
+      "description": "Clerk publishable key for client-side authentication",
+      "required": true,
+      "format": "regex:^pk_(test|live)_[a-zA-Z0-9]+$",
+      "example": "pk_test_abc123...",
+      "setupSteps": ["Go to Clerk Dashboard > API Keys", "Copy your Publishable key"],
+      "dashboardUrl": "https://dashboard.clerk.com/last-active?path=api-keys"
+    },
+    "CLERK_SECRET_KEY": {
+      "description": "Clerk secret key for server-side operations",
+      "required": true,
+      "format": "regex:^sk_(test|live)_[a-zA-Z0-9]+$",
+      "example": "sk_test_abc123...",
+      "setupSteps": ["Go to Clerk Dashboard > API Keys", "Copy your Secret key"],
+      "dashboardUrl": "https://dashboard.clerk.com/last-active?path=api-keys"
+    }
+  },
+  "openai": {
+    "OPENAI_API_KEY": {
+      "description": "OpenAI API key for accessing GPT models and embeddings",
+      "required": true,
+      "format": "regex:^sk-[a-zA-Z0-9-_]+$",
+      "example": "sk-proj-abc123...",
+      "setupSteps": ["Go to OpenAI Platform > API keys", "Create a new secret key and copy it"],
+      "dashboardUrl": "https://platform.openai.com/api-keys"
+    }
+  },
+  "anthropic": {
+    "ANTHROPIC_API_KEY": {
+      "description": "Anthropic API key for accessing Claude models",
+      "required": true,
+      "format": "regex:^sk-ant-[a-zA-Z0-9-_]+$",
+      "example": "sk-ant-api03-abc123...",
+      "setupSteps": ["Go to Anthropic Console > API Keys", "Create a new API key and copy it"],
+      "dashboardUrl": "https://console.anthropic.com/settings/keys"
+    }
+  },
+  "supabase": {
+    "SUPABASE_URL": {
+      "description": "Supabase project URL",
+      "required": true,
+      "format": "regex:^https://[a-zA-Z0-9-]+\\.supabase\\.co$",
+      "example": "https://abc123.supabase.co",
+      "setupSteps": ["Go to Supabase Dashboard > Project Settings > API", "Copy the Project URL"],
+      "dashboardUrl": "https://app.supabase.com/project/_/settings/api"
+    },
+    "SUPABASE_KEY": {
+      "description": "Supabase anon/public key for client-side access",
+      "required": true,
+      "format": "regex:^eyJ[a-zA-Z0-9-_]+\\.[a-zA-Z0-9-_]+\\.[a-zA-Z0-9-_]+$",
+      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "setupSteps": ["Go to Supabase Dashboard > Project Settings > API", "Copy the anon/public key"],
+      "dashboardUrl": "https://app.supabase.com/project/_/settings/api"
+    }
+  },
+  "resend": {
+    "RESEND_API_KEY": {
+      "description": "Resend API key for sending transactional emails",
+      "required": true,
+      "format": "regex:^re_[a-zA-Z0-9]+$",
+      "example": "re_abc123...",
+      "setupSteps": ["Go to Resend Dashboard > API Keys", "Create a new API key and copy it"],
+      "dashboardUrl": "https://resend.com/api-keys"
+    }
+  },
+  "sendgrid": {
+    "SENDGRID_API_KEY": {
+      "description": "SendGrid API key for sending emails",
+      "required": true,
+      "format": "regex:^SG\\.[a-zA-Z0-9-_]+\\.[a-zA-Z0-9-_]+$",
+      "example": "SG.abc123...",
+      "setupSteps": ["Go to SendGrid Dashboard > Settings > API Keys", "Create a new API key with Mail Send permissions"],
+      "dashboardUrl": "https://app.sendgrid.com/settings/api_keys"
+    },
+    "SENDGRID_FROM": {
+      "description": "Verified sender email address for SendGrid",
+      "required": true,
+      "format": "regex:^[^@]+@[^@]+\\.[^@]+$",
+      "example": "noreply@yourdomain.com",
+      "setupSteps": ["Go to SendGrid Dashboard > Settings > Sender Authentication", "Verify your sender email or domain"],
+      "dashboardUrl": "https://app.sendgrid.com/settings/sender_auth"
+    }
+  },
+  "mongodb": {
+    "MONGODB_URI": {
+      "description": "MongoDB connection string",
+      "required": true,
+      "format": "regex:^mongodb(\\+srv)?://",
+      "example": "mongodb+srv://user:password@cluster.mongodb.net/dbname",
+      "setupSteps": ["Go to MongoDB Atlas > Database > Connect", "Choose Connect your application", "Copy the connection string and replace <password> with your password"],
+      "dashboardUrl": "https://cloud.mongodb.com/"
+    }
+  },
+  "redis": {
+    "REDIS_URL": {
+      "description": "Redis connection URL",
+      "required": true,
+      "format": "regex:^redis(s)?://",
+      "example": "redis://default:password@hostname:6379",
+      "setupSteps": ["Get your Redis connection URL from your Redis provider", "Include authentication credentials if required"],
+      "dashboardUrl": null
+    }
+  },
+  "github": {
+    "GITHUB_TOKEN": {
+      "description": "GitHub personal access token for API access",
+      "required": true,
+      "format": "regex:^(ghp_[a-zA-Z0-9]+|github_pat_[a-zA-Z0-9_]+)$",
+      "example": "ghp_abc123...",
+      "setupSteps": ["Go to GitHub Settings > Developer settings > Personal access tokens", "Generate a new token with appropriate scopes"],
+      "dashboardUrl": "https://github.com/settings/tokens"
+    }
+  },
+  "vercel": {
+    "VERCEL_TOKEN": {
+      "description": "Vercel API token for deployments and API access",
+      "required": true,
+      "format": "regex:^[a-zA-Z0-9]+$",
+      "example": "abc123...",
+      "setupSteps": ["Go to Vercel Dashboard > Settings > Tokens", "Create a new token and copy it"],
+      "dashboardUrl": "https://vercel.com/account/tokens"
+    }
+  },
+  "huggingface": {
+    "HF_API_KEY": {
+      "description": "HuggingFace API key for inference endpoints",
+      "required": true,
+      "format": "regex:^hf_[a-zA-Z0-9]+$",
+      "example": "hf_abc123...",
+      "setupSteps": ["Go to HuggingFace Settings > Access Tokens", "Create a new token with appropriate permissions"],
+      "dashboardUrl": "https://huggingface.co/settings/tokens"
+    }
+  },
+  "replicate": {
+    "REPLICATE_API_TOKEN": {
+      "description": "Replicate API token for running ML models",
+      "required": true,
+      "format": "regex:^r8_[a-zA-Z0-9]+$",
+      "example": "r8_abc123...",
+      "setupSteps": ["Go to Replicate Account Settings", "Copy your API token"],
+      "dashboardUrl": "https://replicate.com/account/api-tokens"
+    }
+  },
+  "pinecone": {
+    "PINECONE_API_KEY": {
+      "description": "Pinecone API key for vector database operations",
+      "required": true,
+      "format": "regex:^[a-zA-Z0-9-]+$",
+      "example": "abc123-def456...",
+      "setupSteps": ["Go to Pinecone Console > API Keys", "Copy your API key"],
+      "dashboardUrl": "https://app.pinecone.io/"
+    },
+    "PINECONE_INDEX": {
+      "description": "Name of your Pinecone index",
+      "required": true,
+      "format": null,
+      "example": "my-index",
+      "setupSteps": ["Create an index in the Pinecone Console", "Use the index name here"],
+      "dashboardUrl": "https://app.pinecone.io/"
+    }
+  },
+  "aws-s3": {
+    "AWS_ACCESS_KEY_ID": {
+      "description": "AWS access key ID for S3 operations",
+      "required": true,
+      "format": "regex:^AKI[A-Z0-9]{16}$",
+      "example": "AKIA...",
+      "setupSteps": ["Go to AWS IAM Console > Users > Your User > Security credentials", "Create an access key and copy the Access key ID"],
+      "dashboardUrl": "https://console.aws.amazon.com/iam/"
+    },
+    "AWS_SECRET_ACCESS_KEY": {
+      "description": "AWS secret access key for S3 operations",
+      "required": true,
+      "format": "regex:^[a-zA-Z0-9/+=]{40}$",
+      "example": "wJalr...",
+      "setupSteps": ["This is shown only once when creating the access key", "Store it securely as you cannot retrieve it later"],
+      "dashboardUrl": "https://console.aws.amazon.com/iam/"
+    },
+    "AWS_REGION": {
+      "description": "AWS region for S3 bucket",
+      "required": true,
+      "format": "regex:^[a-z]{2}-[a-z]+-\\d$",
+      "example": "us-east-1",
+      "setupSteps": ["Identify the region where your S3 bucket is located"],
+      "dashboardUrl": "https://console.aws.amazon.com/s3/"
+    },
+    "AWS_S3_BUCKET": {
+      "description": "Name of your S3 bucket",
+      "required": true,
+      "format": "regex:^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$",
+      "example": "my-app-uploads",
+      "setupSteps": ["Create a bucket in S3 Console or use existing one", "Use the bucket name here"],
+      "dashboardUrl": "https://console.aws.amazon.com/s3/"
+    }
+  },
+  "cloudflare-r2": {
+    "R2_ACCOUNT_ID": {
+      "description": "Cloudflare account ID for R2 storage",
+      "required": true,
+      "format": "regex:^[a-f0-9]{32}$",
+      "example": "abc123def456...",
+      "setupSteps": ["Go to Cloudflare Dashboard", "Copy your Account ID from the sidebar"],
+      "dashboardUrl": "https://dash.cloudflare.com/"
+    },
+    "R2_ACCESS_KEY_ID": {
+      "description": "R2 access key ID",
+      "required": true,
+      "format": "regex:^[a-f0-9]+$",
+      "example": "abc123...",
+      "setupSteps": ["Go to R2 > Manage R2 API Tokens", "Create a token and copy the Access Key ID"],
+      "dashboardUrl": "https://dash.cloudflare.com/?to=/:account/r2/api-tokens"
+    },
+    "R2_SECRET_ACCESS_KEY": {
+      "description": "R2 secret access key",
+      "required": true,
+      "format": "regex:^[a-zA-Z0-9]+$",
+      "example": "abc123...",
+      "setupSteps": ["This is shown only once when creating the API token", "Store it securely"],
+      "dashboardUrl": "https://dash.cloudflare.com/?to=/:account/r2/api-tokens"
+    },
+    "R2_BUCKET": {
+      "description": "Name of your R2 bucket",
+      "required": true,
+      "format": "regex:^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$",
+      "example": "my-bucket",
+      "setupSteps": ["Create a bucket in R2 or use existing one"],
+      "dashboardUrl": "https://dash.cloudflare.com/?to=/:account/r2"
+    }
+  },
+  "uploadthing": {
+    "UPLOADTHING_SECRET": {
+      "description": "UploadThing secret key",
+      "required": true,
+      "format": "regex:^sk_[a-zA-Z0-9]+$",
+      "example": "sk_abc123...",
+      "setupSteps": ["Go to UploadThing Dashboard > API Keys", "Copy your Secret key"],
+      "dashboardUrl": "https://uploadthing.com/dashboard"
+    },
+    "UPLOADTHING_APP_ID": {
+      "description": "UploadThing application ID",
+      "required": true,
+      "format": "regex:^[a-zA-Z0-9]+$",
+      "example": "abc123",
+      "setupSteps": ["Go to UploadThing Dashboard", "Copy your App ID"],
+      "dashboardUrl": "https://uploadthing.com/dashboard"
+    }
+  },
+  "liveblocks": {
+    "LIVEBLOCKS_SECRET_KEY": {
+      "description": "Liveblocks secret key for real-time collaboration",
+      "required": true,
+      "format": "regex:^sk_[a-zA-Z0-9_]+$",
+      "example": "sk_abc123...",
+      "setupSteps": ["Go to Liveblocks Dashboard > Project > API keys", "Copy your Secret key"],
+      "dashboardUrl": "https://liveblocks.io/dashboard"
+    }
+  },
+  "ably": {
+    "ABLY_API_KEY": {
+      "description": "Ably API key for real-time messaging",
+      "required": true,
+      "format": "regex:^[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+$",
+      "example": "abc123.def456:ghi789",
+      "setupSteps": ["Go to Ably Dashboard > Your App > API Keys", "Copy your API key"],
+      "dashboardUrl": "https://ably.com/accounts/any/apps"
+    }
+  },
+  "lemonsqueezy": {
+    "LEMONSQUEEZY_API_KEY": {
+      "description": "Lemon Squeezy API key for payments",
+      "required": true,
+      "format": "regex:^[a-zA-Z0-9]+$",
+      "example": "abc123...",
+      "setupSteps": ["Go to Lemon Squeezy Settings > API", "Create an API key"],
+      "dashboardUrl": "https://app.lemonsqueezy.com/settings/api"
+    },
+    "LEMONSQUEEZY_STORE_ID": {
+      "description": "Your Lemon Squeezy store ID",
+      "required": true,
+      "format": "regex:^[0-9]+$",
+      "example": "12345",
+      "setupSteps": ["Go to Lemon Squeezy Settings > Stores", "Copy your Store ID"],
+      "dashboardUrl": "https://app.lemonsqueezy.com/settings/stores"
+    }
+  },
+  "planetscale": {
+    "DATABASE_URL": {
+      "description": "PlanetScale database connection string",
+      "required": true,
+      "format": "regex:^mysql://",
+      "example": "mysql://user:password@host.planetscale.com/dbname?ssl={\"rejectUnauthorized\":true}",
+      "setupSteps": ["Go to PlanetScale Dashboard > Your Database > Connect", "Select your language and copy the connection string"],
+      "dashboardUrl": "https://app.planetscale.com/"
+    }
+  },
+  "webhooks": {
+    "WEBHOOK_SECRET": {
+      "description": "Secret for verifying incoming webhooks",
+      "required": false,
+      "format": null,
+      "example": "whsec_your_secret_here",
+      "setupSteps": ["Generate a secure random string", "Share with the webhook provider"],
+      "dashboardUrl": null
+    }
+  }
+}

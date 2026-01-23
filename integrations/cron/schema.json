@@ -1,0 +1,14 @@
+{
+  "name": "cron",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Task registry",
+      "output": "lib/cron.ts"
+    },
+    "task": {
+      "description": "Example tasks",
+      "output": "app/api/cron/route.ts"
+    }
+  }
+}

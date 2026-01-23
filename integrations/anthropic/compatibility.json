@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-01-02"
+  },
+  "supportedFrameworks": ["nextjs", "express", "fastify", "remix", "nuxt", "sveltekit", "astro"],
+  "incompatibleIntegrations": [],
+  "overlappingFeatures": [
+    {
+      "feature": "LLM Chat Completions",
+      "integrations": ["openai", "huggingface", "replicate"],
+      "notes": "Multiple LLM providers can coexist but may increase API costs and complexity."
+    }
+  ],
+  "softDependencies": []
+}

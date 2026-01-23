@@ -1,0 +1,55 @@
+{
+  "stripe": {
+    "2.0.0": {
+      "breakingChanges": [
+        "Webhook signature verification now required",
+        "API changed from sync to async"
+      ],
+      "migrationNotes": "Update webhook handler to verify signatures using constructEvent(). All Stripe API calls now return Promises."
+    },
+    "2.1.0": {
+      "breakingChanges": [],
+      "migrationNotes": "Added support for Stripe Tax and improved error handling. No breaking changes."
+    }
+  },
+  "openai": {
+    "2.0.0": {
+      "breakingChanges": [
+        "Dropped support for legacy completions API",
+        "Changed from openai.createCompletion to openai.chat.completions.create"
+      ],
+      "migrationNotes": "Migrate all completion calls to use the Chat Completions API. Use gpt-3.5-turbo or gpt-4 instead of text-davinci models."
+    }
+  },
+  "supabase": {
+    "2.0.0": {
+      "breakingChanges": [
+        "Auth methods renamed: signIn() to signInWithPassword()",
+        "Realtime subscriptions API changed"
+      ],
+      "migrationNotes": "Update all auth calls to use new method names. Review realtime subscription syntax for channel-based API."
+    }
+  },
+  "clerk": {
+    "1.1.0": {
+      "breakingChanges": [],
+      "migrationNotes": "Added organization support and improved middleware configuration."
+    },
+    "1.2.0": {
+      "breakingChanges": [],
+      "migrationNotes": "Added support for custom claims and improved session handling."
+    }
+  },
+  "mongodb": {
+    "1.1.0": {
+      "breakingChanges": [],
+      "migrationNotes": "Added support for MongoDB 6.0 features and improved connection pooling."
+    }
+  },
+  "sendgrid": {
+    "1.1.0": {
+      "breakingChanges": [],
+      "migrationNotes": "Added support for dynamic templates v2 and improved error messages."
+    }
+  }
+}

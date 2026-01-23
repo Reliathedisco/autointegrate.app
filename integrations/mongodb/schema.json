@@ -1,0 +1,14 @@
+{
+  "name": "mongodb",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize MongoDB connection",
+      "output": "lib/mongodb.ts"
+    },
+    "client": {
+      "description": "Query helpers",
+      "output": "lib/mongodb-client.ts"
+    }
+  }
+}

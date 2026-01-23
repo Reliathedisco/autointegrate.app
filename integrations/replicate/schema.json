@@ -1,0 +1,14 @@
+{
+  "name": "replicate",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize Replicate client",
+      "output": "lib/replicate.ts"
+    },
+    "predict": {
+      "description": "Model prediction helpers",
+      "output": "lib/replicate-predict.ts"
+    }
+  }
+}

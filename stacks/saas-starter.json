@@ -1,0 +1,8 @@
+{
+  "id": "saas-starter",
+  "name": "SaaS Starter",
+  "description": "Essential integrations for building SaaS applications with payments, authentication, and email",
+  "category": "starter",
+  "integrations": ["stripe", "clerk", "resend"],
+  "configDefaults": {}
+}

@@ -1,0 +1,14 @@
+{
+  "name": "anthropic",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize Anthropic client",
+      "output": "lib/anthropic.ts"
+    },
+    "chat": {
+      "description": "Chat completion helpers",
+      "output": "lib/anthropic-chat.ts"
+    }
+  }
+}

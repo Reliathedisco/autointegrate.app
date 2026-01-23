@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-01-02"
+  },
+  "supportedFrameworks": ["nextjs", "remix", "express", "sveltekit", "nuxt", "astro"],
+  "incompatibleIntegrations": [],
+  "overlappingFeatures": [
+    {
+      "feature": "Database",
+      "integrations": ["planetscale", "mongodb", "prisma"],
+      "notes": "Supabase includes PostgreSQL. Using another database may be redundant unless you need specific features."
+    },
+    {
+      "feature": "Authentication",
+      "integrations": ["clerk", "auth0", "nextauth"],
+      "notes": "Supabase includes auth. If using external auth like Clerk, disable Supabase auth to avoid conflicts."
+    },
+    {
+      "feature": "Storage",
+      "integrations": ["aws-s3", "cloudflare-r2", "uploadthing"],
+      "notes": "Supabase includes storage. You may not need additional storage providers."
+    }
+  ],
+  "softDependencies": []
+}

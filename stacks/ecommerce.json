@@ -1,0 +1,8 @@
+{
+  "id": "ecommerce",
+  "name": "E-Commerce",
+  "description": "Online store essentials with payment processing and transactional emails",
+  "category": "ecommerce",
+  "integrations": ["stripe", "sendgrid"],
+  "configDefaults": {}
+}

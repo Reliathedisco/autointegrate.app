@@ -1,0 +1,18 @@
+{
+  "name": "ably",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize Ably client",
+      "output": "lib/ably.ts"
+    },
+    "publish": {
+      "description": "Server-side publishing",
+      "output": "lib/ably-publish.ts"
+    },
+    "subscribe": {
+      "description": "Client-side subscriptions",
+      "output": "lib/ably-subscribe.ts"
+    }
+  }
+}

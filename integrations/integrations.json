@@ -1,0 +1,227 @@
+{
+  "stripe": {
+    "name": "Stripe",
+    "version": "2.1.0",
+    "category": "payments",
+    "description": "Billing, webhooks, checkout, subscriptions",
+    "env": ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"],
+    "hasWebhook": true,
+    "templates": ["init", "checkout", "webhook"]
+  },
+  "clerk": {
+    "name": "Clerk",
+    "version": "1.2.0",
+    "category": "auth",
+    "description": "User authentication, sessions, OAuth",
+    "env": ["CLERK_PUBLISHABLE_KEY", "CLERK_SECRET_KEY"],
+    "hasWebhook": false,
+    "templates": ["init", "middleware"]
+  },
+  "supabase": {
+    "name": "Supabase",
+    "version": "2.0.0",
+    "category": "database",
+    "description": "SQL database, auth, storage",
+    "env": ["SUPABASE_URL", "SUPABASE_KEY"],
+    "hasWebhook": false,
+    "templates": ["init", "client"]
+  },
+  "resend": {
+    "name": "Resend",
+    "version": "1.0.0",
+    "category": "email",
+    "description": "Emails, transactional templates, webhooks",
+    "env": ["RESEND_API_KEY"],
+    "hasWebhook": false,
+    "templates": ["init", "sendEmail"]
+  },
+  "openai": {
+    "name": "OpenAI",
+    "version": "2.0.0",
+    "category": "ai",
+    "description": "Text, code, embeddings, assistants",
+    "env": ["OPENAI_API_KEY"],
+    "hasWebhook": false,
+    "templates": ["init", "chat", "embedding"]
+  },
+  "sendgrid": {
+    "name": "SendGrid",
+    "version": "1.1.0",
+    "category": "email",
+    "description": "Transactional emails with dynamic templates",
+    "env": ["SENDGRID_API_KEY", "SENDGRID_FROM"],
+    "hasWebhook": true,
+    "templates": ["init", "sendEmail"]
+  },
+  "lemonsqueezy": {
+    "name": "Lemon Squeezy",
+    "version": "1.0.0",
+    "category": "payments",
+    "description": "Digital products, subscriptions, licensing",
+    "env": ["LEMONSQUEEZY_API_KEY", "LEMONSQUEEZY_STORE_ID"],
+    "hasWebhook": true,
+    "templates": ["init", "checkout", "webhook"]
+  },
+  "ably": {
+    "name": "Ably",
+    "version": "1.0.0",
+    "category": "realtime",
+    "description": "Realtime messaging and pub/sub",
+    "env": ["ABLY_API_KEY"],
+    "hasWebhook": false,
+    "templates": ["init", "publish", "subscribe"]
+  },
+  "liveblocks": {
+    "name": "Liveblocks",
+    "version": "1.0.0",
+    "category": "realtime",
+    "description": "Collaborative features, presence, storage",
+    "env": ["LIVEBLOCKS_SECRET_KEY"],
+    "hasWebhook": true,
+    "templates": ["init", "room"]
+  },
+  "github": {
+    "name": "GitHub",
+    "version": "1.0.0",
+    "category": "devtools",
+    "description": "Repos, issues, PRs, actions, webhooks",
+    "env": ["GITHUB_TOKEN"],
+    "hasWebhook": true,
+    "templates": ["init", "issues", "releases", "webhook"]
+  },
+  "gitlab": {
+    "name": "GitLab",
+    "version": "1.0.0",
+    "category": "devtools",
+    "description": "Repos, merge requests, pipelines",
+    "env": ["GITLAB_TOKEN"],
+    "hasWebhook": true,
+    "templates": ["init", "issues"]
+  },
+  "vercel": {
+    "name": "Vercel",
+    "version": "1.0.0",
+    "category": "devtools",
+    "description": "Deployments, domains, environment variables",
+    "env": ["VERCEL_TOKEN"],
+    "hasWebhook": true,
+    "templates": ["init", "deploy"]
+  },
+  "planetscale": {
+    "name": "PlanetScale",
+    "version": "1.0.0",
+    "category": "database",
+    "description": "Serverless MySQL database",
+    "env": ["DATABASE_URL"],
+    "hasWebhook": false,
+    "templates": ["init", "client"]
+  },
+  "mongodb": {
+    "name": "MongoDB",
+    "version": "1.1.0",
+    "category": "database",
+    "description": "Document database with Atlas",
+    "env": ["MONGODB_URI"],
+    "hasWebhook": false,
+    "templates": ["init", "client"]
+  },
+  "redis": {
+    "name": "Redis",
+    "version": "1.0.0",
+    "category": "database",
+    "description": "In-memory caching and data store",
+    "env": ["REDIS_URL"],
+    "hasWebhook": false,
+    "templates": ["init", "client"]
+  },
+  "aws-s3": {
+    "name": "AWS S3",
+    "version": "1.0.0",
+    "category": "storage",
+    "description": "Object storage for files and assets",
+    "env": ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_REGION", "AWS_S3_BUCKET"],
+    "hasWebhook": false,
+    "templates": ["init", "upload", "download"]
+  },
+  "gcp-storage": {
+    "name": "Google Cloud Storage",
+    "version": "1.0.0",
+    "category": "storage",
+    "description": "Cloud object storage",
+    "env": ["GCS_BUCKET", "GCP_KEY"],
+    "hasWebhook": false,
+    "templates": ["init", "upload"]
+  },
+  "cloudflare-r2": {
+    "name": "Cloudflare R2",
+    "version": "1.0.0",
+    "category": "storage",
+    "description": "S3-compatible object storage",
+    "env": ["R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_BUCKET"],
+    "hasWebhook": false,
+    "templates": ["init", "upload"]
+  },
+  "uploadthing": {
+    "name": "UploadThing",
+    "version": "1.0.0",
+    "category": "storage",
+    "description": "File uploads for Next.js",
+    "env": ["UPLOADTHING_SECRET", "UPLOADTHING_APP_ID"],
+    "hasWebhook": false,
+    "templates": ["init", "router"]
+  },
+  "anthropic": {
+    "name": "Anthropic Claude",
+    "version": "1.0.0",
+    "category": "ai",
+    "description": "Claude AI models for text and code",
+    "env": ["ANTHROPIC_API_KEY"],
+    "hasWebhook": false,
+    "templates": ["init", "chat"]
+  },
+  "huggingface": {
+    "name": "HuggingFace",
+    "version": "1.0.0",
+    "category": "ai",
+    "description": "Open source ML models inference",
+    "env": ["HF_API_KEY"],
+    "hasWebhook": false,
+    "templates": ["init", "inference"]
+  },
+  "replicate": {
+    "name": "Replicate",
+    "version": "1.0.0",
+    "category": "ai",
+    "description": "Run ML models in the cloud",
+    "env": ["REPLICATE_API_TOKEN"],
+    "hasWebhook": true,
+    "templates": ["init", "predict"]
+  },
+  "pinecone": {
+    "name": "Pinecone",
+    "version": "1.0.0",
+    "category": "ai",
+    "description": "Vector database for embeddings",
+    "env": ["PINECONE_API_KEY", "PINECONE_INDEX"],
+    "hasWebhook": false,
+    "templates": ["init", "upsert", "query"]
+  },
+  "cron": {
+    "name": "Cron Jobs",
+    "version": "1.0.0",
+    "category": "automation",
+    "description": "Scheduled tasks and background jobs",
+    "env": [],
+    "hasWebhook": false,
+    "templates": ["init", "task"]
+  },
+  "webhooks": {
+    "name": "Webhooks",
+    "version": "1.0.0",
+    "category": "automation",
+    "description": "Generic webhook handler template",
+    "env": ["WEBHOOK_SECRET"],
+    "hasWebhook": true,
+    "templates": ["init", "handler", "verify"]
+  }
+}

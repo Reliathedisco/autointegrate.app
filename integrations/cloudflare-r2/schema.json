@@ -1,0 +1,14 @@
+{
+  "name": "cloudflare-r2",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize R2 client",
+      "output": "lib/r2.ts"
+    },
+    "upload": {
+      "description": "Upload and presigned URLs",
+      "output": "lib/r2-upload.ts"
+    }
+  }
+}

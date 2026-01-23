@@ -1,0 +1,8 @@
+{
+  "id": "ai-app",
+  "name": "AI App",
+  "description": "AI-powered application stack with OpenAI and Anthropic integrations",
+  "category": "ai",
+  "integrations": ["openai", "anthropic"],
+  "configDefaults": {}
+}

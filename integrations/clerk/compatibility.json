@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-01-02"
+  },
+  "supportedFrameworks": ["nextjs", "remix", "express"],
+  "incompatibleIntegrations": [
+    {
+      "name": "nextauth",
+      "reason": "Both provide authentication. Using both will cause conflicts in session management.",
+      "resolution": "Choose either Clerk or NextAuth for authentication, not both."
+    },
+    {
+      "name": "auth0",
+      "reason": "Both are complete authentication solutions that will conflict.",
+      "resolution": "Choose either Clerk or Auth0 for authentication."
+    }
+  ],
+  "overlappingFeatures": [
+    {
+      "feature": "User Authentication",
+      "integrations": ["supabase", "firebase-auth"],
+      "notes": "Supabase and Firebase include their own auth. You may want to disable their auth features if using Clerk."
+    }
+  ],
+  "requires": {
+    "frameworks": ["nextjs", "remix", "express"]
+  }
+}

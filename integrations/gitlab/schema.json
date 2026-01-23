@@ -1,0 +1,14 @@
+{
+  "name": "gitlab",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize GitLab client",
+      "output": "lib/gitlab.ts"
+    },
+    "issues": {
+      "description": "Issue and MR management",
+      "output": "lib/gitlab-issues.ts"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "full-stack",
+  "name": "Full Stack",
+  "description": "Complete full-stack application with database, authentication, and payments",
+  "category": "starter",
+  "integrations": ["supabase", "clerk", "stripe"],
+  "configDefaults": {}
+}

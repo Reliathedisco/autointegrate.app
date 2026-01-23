@@ -1,0 +1,14 @@
+{
+  "name": "sendgrid",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize SendGrid client",
+      "output": "lib/sendgrid.ts"
+    },
+    "sendEmail": {
+      "description": "Email sending helpers",
+      "output": "lib/sendgrid-email.ts"
+    }
+  }
+}

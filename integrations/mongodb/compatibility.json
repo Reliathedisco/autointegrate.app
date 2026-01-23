@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "lastUpdated": "2025-01-02"
+  },
+  "supportedFrameworks": ["nextjs", "express", "fastify", "remix", "nuxt", "sveltekit", "astro", "nestjs"],
+  "incompatibleIntegrations": [],
+  "overlappingFeatures": [
+    {
+      "feature": "Database",
+      "integrations": ["supabase", "planetscale", "redis"],
+      "notes": "MongoDB is a document database. Consider if you need multiple database types for your use case."
+    }
+  ],
+  "softDependencies": []
+}

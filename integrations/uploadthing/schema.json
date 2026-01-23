@@ -1,0 +1,14 @@
+{
+  "name": "uploadthing",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Upload router definition",
+      "output": "lib/uploadthing.ts"
+    },
+    "router": {
+      "description": "API route handler",
+      "output": "app/api/uploadthing/route.ts"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "github",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize GitHub client",
+      "output": "lib/github.ts"
+    },
+    "issues": {
+      "description": "Issue management",
+      "output": "lib/github-issues.ts"
+    },
+    "releases": {
+      "description": "Release management",
+      "output": "lib/github-releases.ts"
+    },
+    "webhook": {
+      "description": "Webhook handler",
+      "output": "app/api/webhooks/github/route.ts"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "redis",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize Redis connection",
+      "output": "lib/redis.ts"
+    },
+    "client": {
+      "description": "Cache and store helpers",
+      "output": "lib/redis-client.ts"
+    }
+  }
+}

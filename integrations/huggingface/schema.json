@@ -1,0 +1,14 @@
+{
+  "name": "huggingface",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "HuggingFace inference client",
+      "output": "lib/huggingface.ts"
+    },
+    "inference": {
+      "description": "Common model helpers",
+      "output": "lib/huggingface-inference.ts"
+    }
+  }
+}

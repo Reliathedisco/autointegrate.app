@@ -1,0 +1,52 @@
+The payment flow is still broken and confusing. After purchase, it **just ends** — there is no clear way back to the app, and users think they need to sign up again. This must be fixed clearly and explicitly.
+
+Here is what is missing and must be added:
+
+1. **Stripe success return is not visible to the user**
+   - After payment, the user must land on a page that clearly says:
+     **“Payment successful — you now have access.”**
+   - This page must include:
+     - A **big primary button**: “Go to Dashboard”
+     - A fallback link: “Return to app”
+   - Do NOT rely on auto-redirect alone — users need something to click.
+
+2. **Account ↔ payment is not clearly linked**
+   - Users should NOT feel like they need to sign up again after paying.
+   - If the user is already authenticated when clicking “Pay”:
+     - Their user ID/email must be attached to the Stripe checkout (metadata or client reference ID).
+   - If they are NOT authenticated:
+     - After payment, clearly prompt:
+       **“Create or sign in to the account you want this purchase applied to.”**
+     - Then permanently attach the payment to that account.
+
+3. **Stop the “sign up again” confusion**
+   - If a paid user signs in:
+     - They should NEVER see pricing or sign-up walls again.
+     - They should go directly to the dashboard.
+   - Add explicit logic:
+     - Paid → dashboard
+     - Unpaid → billing
+     - No ambiguous middle states.
+
+4. **Make the flow human-clear**
+   Walk through this exact path and fix every gap:
+   - Visit site
+   - Sign up or sign in
+   - Click pricing
+   - Pay
+   - See confirmation with a button
+   - Click back into the app
+   - Refresh page
+   - Log out and back in
+
+   At no point should the user wonder:
+   - “Did it work?”
+   - “Do I need to sign up again?”
+   - “Where do I go now?”
+
+5. **Do not assume users understand Stripe**
+   - The app must explain what just happened and what to do next.
+   - Explicit copy > implicit redirects.
+
+This is not a small tweak — it’s a UX + logic fix.  
+Please fix the **entire experience so it feels obvious, safe, and finished**.

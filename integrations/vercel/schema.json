@@ -1,0 +1,14 @@
+{
+  "name": "vercel",
+  "version": "1.0.0",
+  "templates": {
+    "init": {
+      "description": "Initialize Vercel client",
+      "output": "lib/vercel.ts"
+    },
+    "deploy": {
+      "description": "Deployment management",
+      "output": "lib/vercel-deploy.ts"
+    }
+  }
+}
