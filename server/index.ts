@@ -88,6 +88,12 @@ if (isProduction) {
   });
 }
 
-app.listen(PORT, () => {
-  log.success(`🚀 Server running at http://localhost:${PORT}`);
-});
+// Only start listening if not in Vercel serverless environment
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    log.success(`🚀 Server running at http://localhost:${PORT}`);
+  });
+}
+
+// Export for Vercel serverless
+export default app;
