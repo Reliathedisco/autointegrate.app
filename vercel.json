@@ -1,22 +1,20 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/node"
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/client",
+  "functions": {
+    "server/index.ts": {
+      "runtime": "@vercel/node@3.0.0"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/server/index.ts"
+      "source": "/api/:path*",
+      "destination": "/server/index.ts"
     },
     {
-      "src": "/(.*)",
-      "dest": "/dist/client/$1"
+      "source": "/:path*",
+      "destination": "/dist/client/:path*"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
