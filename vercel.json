@@ -1,12 +1,5 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist/client"
-      }
-    }
-  ]
+  "buildCommand": "vite build --config vite.config.ts",
+  "outputDirectory": "dist/client",
+  "installCommand": "npm install"
 }
