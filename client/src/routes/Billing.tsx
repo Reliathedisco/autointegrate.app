@@ -134,7 +134,7 @@ export default function Billing() {
                 📋 After payment:
               </p>
               <p className="text-blue-700 text-xs">
-                You'll see a confirmation page. To get back to the app, simply type <code className="bg-blue-100 px-1 py-0.5 rounded">localhost:4000</code> in your browser's address bar and sign in.
+                You'll be automatically redirected back to the app after completing your payment.
               </p>
             </div>
             <button
