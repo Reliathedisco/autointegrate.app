@@ -20,8 +20,8 @@ import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth/index.
 
 import { log } from "./utils/logger.js";
 
-// Start worker
-import "./worker/index.js";
+// Start worker (disabled for Vercel serverless - workers don't work in serverless)
+// import "./worker/index.js";
 
 const app = express();
 

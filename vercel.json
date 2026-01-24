@@ -1,5 +1,6 @@
 {
-  "buildCommand": "vite build --config vite.config.ts",
+  "buildCommand": "npm run build:client",
   "outputDirectory": "dist/client",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "framework": null
 }
