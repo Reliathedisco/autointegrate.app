@@ -10,6 +10,7 @@
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build --config vite.config.ts",
     "build:server": "tsc --project tsconfig.json",
+    "vercel-build": "npm run build:client",
     "start": "node dist/server/index.js",
     "db:push": "drizzle-kit push"
   },
