@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
     "dev:server": "tsx watch server/index.ts",
-    "dev:client": "vite --config vite.config.ts",
+    "dev:client": "npx vite --config vite.config.ts",
     "build": "npm run build:client && npm run build:server",
-    "build:client": "vite build --config vite.config.ts",
+    "build:client": "npx vite build --config vite.config.ts",
     "build:server": "tsc --project tsconfig.json",
     "vercel-build": "npm run build:client",
     "start": "node dist/server/index.js",
