@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth as useClerkAuth, useUser } from "@clerk/clerk-react";
 
 interface User {
@@ -19,6 +20,7 @@ interface AuthState {
 export function useAuth() {
   const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
   const { isSignedIn, getToken, signOut } = useClerkAuth();
+  const navigate = useNavigate();
 
   const [hasPaid, setHasPaid] = useState(false);
   const [isBillingLoading, setIsBillingLoading] = useState(true);
@@ -112,9 +114,9 @@ export function useAuth() {
     logout: async () => {
       try {
         await signOut();
-        window.location.href = "/";
+        navigate("/", { replace: true });
       } catch {
-        window.location.href = "/";
+        navigate("/", { replace: true });
       }
     },
   };

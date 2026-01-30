@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { SignInButton, SignUpButton } from "@clerk/clerk-react";
 import { useAuth } from "../hooks/use-auth";
 
@@ -8,6 +9,7 @@ export default function PaymentSuccess() {
   const [state, setState] = useState<PaymentState>("verifying");
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const { isAuthenticated, getAuthHeaders, refreshPaymentStatus } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
@@ -37,7 +39,7 @@ export default function PaymentSuccess() {
               setState("verified");
               // Auto-redirect to dashboard after 2 seconds
               setTimeout(() => {
-                window.location.href = "/?from=payment";
+                navigate("/?from=payment", { replace: true });
               }, 2000);
             }
             return { done: true };
@@ -67,7 +69,7 @@ export default function PaymentSuccess() {
 
     poll();
     return () => { mounted = false; };
-  }, [getAuthHeaders, isAuthenticated]);
+  }, [getAuthHeaders, isAuthenticated, navigate]);
 
   const handleGoToDashboard = async () => {
     setActionMessage(null);
@@ -77,7 +79,10 @@ export default function PaymentSuccess() {
         return;
       }
       const isPaid = await refreshPaymentStatus();
-      if (isPaid) return (window.location.href = "/?from=payment");
+      if (isPaid) {
+        navigate("/?from=payment", { replace: true });
+        return;
+      }
       setActionMessage("We’re still activating your access. Click “Refresh Access” on the Billing page in a moment.");
     } catch {
       setActionMessage("Couldn’t verify access right now. Please try again in a moment.");
@@ -89,12 +94,12 @@ export default function PaymentSuccess() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-lg mx-auto text-center px-4">
           <div className="mb-4">
-            <a href="/?from=payment" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+            <Link to="/?from=payment" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Back to App
-            </a>
+            </Link>
           </div>
           <div className="mb-6">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
@@ -135,7 +140,7 @@ export default function PaymentSuccess() {
           </div>
 
           <p className="text-gray-500 text-sm mt-6">
-            Returning to the app? <a href="/?from=payment" className="text-blue-600 hover:underline">Return to app</a>
+            Returning to the app? <Link to="/?from=payment" className="text-blue-600 hover:underline">Return to app</Link>
           </p>
         </div>
       </div>
@@ -147,12 +152,12 @@ export default function PaymentSuccess() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-lg mx-auto text-center px-4">
           <div className="mb-4">
-            <a href="/?from=payment" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+            <Link to="/?from=payment" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Back to App
-            </a>
+            </Link>
           </div>
           <div className="mb-6">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
@@ -189,7 +194,7 @@ export default function PaymentSuccess() {
             If you don’t have access yet, wait a moment and try again.
           </p>
           <p className="text-gray-500 text-sm mt-2">
-            <a href="/?from=payment" className="text-blue-600 hover:underline">Return to app</a>
+            <Link to="/?from=payment" className="text-blue-600 hover:underline">Return to app</Link>
           </p>
           {actionMessage && (
             <p className="text-gray-600 text-sm mt-3">{actionMessage}</p>
@@ -204,12 +209,12 @@ export default function PaymentSuccess() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-lg mx-auto text-center px-4">
           <div className="mb-4">
-            <a href="/?from=payment" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+            <Link to="/?from=payment" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Back to App
-            </a>
+            </Link>
           </div>
           <div className="mb-6">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
@@ -229,14 +234,14 @@ export default function PaymentSuccess() {
 
           <button
             type="button"
-            onClick={() => (window.location.href = "/billing")}
+            onClick={() => navigate("/billing")}
             className="inline-block w-full max-w-xs px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-lg mb-4"
           >
             Go to Billing (Refresh Access)
           </button>
 
           <p className="text-gray-500 text-sm">
-            <a href="/?from=payment" className="text-blue-600 hover:underline">Return to app</a>
+            <Link to="/?from=payment" className="text-blue-600 hover:underline">Return to app</Link>
           </p>
         </div>
       </div>
@@ -247,12 +252,12 @@ export default function PaymentSuccess() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="max-w-lg mx-auto text-center px-4">
         <div className="mb-4">
-          <a href="/?from=payment" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+          <Link to="/?from=payment" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Back to App
-          </a>
+          </Link>
         </div>
         <div className="mb-6">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
@@ -291,7 +296,7 @@ export default function PaymentSuccess() {
         </button>
 
         <p className="text-gray-400 text-sm">
-          <a href="/?from=payment" className="text-blue-600 hover:underline">Return to app</a>
+          <Link to="/?from=payment" className="text-blue-600 hover:underline">Return to app</Link>
         </p>
         {actionMessage && (
           <p className="text-gray-600 text-sm mt-3">{actionMessage}</p>
