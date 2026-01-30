@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth";
 
 type CheckoutMode = "checkout_session" | "payment_link";
@@ -7,6 +7,7 @@ type CheckoutMode = "checkout_session" | "payment_link";
 export default function Billing() {
   const { user, hasPaid, refreshPaymentStatus, isAuthenticated, getAuthHeaders } = useAuth();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshMessage, setRefreshMessage] = useState<string | null>(null);
   const [isStartingCheckout, setIsStartingCheckout] = useState(false);
@@ -17,23 +18,23 @@ export default function Billing() {
 
   useEffect(() => {
     if (isSuccess) {
-      window.location.href = "/payment-success";
+      navigate("/payment-success", { replace: true });
     }
-  }, [isSuccess]);
+  }, [isSuccess, navigate]);
 
   useEffect(() => {
     if (hasPaid && !isSuccess) {
       console.log("[Billing] User is paid, redirecting to dashboard");
-      window.location.href = "/";
+      navigate("/", { replace: true });
     }
-  }, [hasPaid, isSuccess]);
+  }, [hasPaid, isSuccess, navigate]);
 
   const handleCheckout = async () => {
     setIsStartingCheckout(true);
     setCheckoutError(null);
     try {
       if (!isAuthenticated) {
-        window.location.href = "/?from=payment";
+        navigate("/?from=payment", { replace: true });
         return;
       }
       const authHeaders = await getAuthHeaders();
@@ -63,7 +64,7 @@ export default function Billing() {
       if (isPaid) {
         setRefreshMessage("Access verified! Redirecting...");
         setTimeout(() => {
-          window.location.href = "/";
+          navigate("/", { replace: true });
         }, 1000);
       } else {
         setRefreshMessage("No payment found. If you just paid, wait a moment and try again.");
