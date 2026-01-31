@@ -1,44 +1,27 @@
 import { NavLink, Link } from "react-router-dom";
 import UserMenu from "./UserMenu";
-import logo from "../assets/logo.png";
 
 export default function Navbar() {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `block py-3 px-4 rounded text-gray-200 transition-colors flex items-center gap-2 ${
-      isActive ? "bg-gray-700" : "hover:bg-gray-800"
+    `block py-2 px-3 rounded text-sm transition-colors ${
+      isActive ? "bg-gray-100 text-gray-900 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
     }`;
 
   return (
-    <aside className="w-56 bg-gray-900 min-h-screen text-white p-4 flex flex-col">
-      <Link to="/" className="mb-8">
-        <img src={logo} alt="AutoIntegrate" className="h-8" />
+    <aside className="w-48 bg-white border-r border-gray-200 min-h-screen flex flex-col">
+      <Link to="/" className="px-4 py-4 border-b border-gray-100">
+        <span className="font-semibold text-gray-900">AutoIntegrate</span>
       </Link>
 
-      <nav className="space-y-2 flex-1">
-        <NavLink to="/" className={linkClass}>
-          <span>📊</span>
-          Dashboard
-        </NavLink>
-        <NavLink to="/jobs" className={linkClass}>
-          <span>⚡</span>
-          Jobs
-        </NavLink>
-        <NavLink to="/templates" className={linkClass}>
-          <span>📦</span>
-          Templates
-        </NavLink>
-        <NavLink to="/sandbox" className={linkClass}>
-          <span>🧪</span>
-          Sandbox
-        </NavLink>
-        <NavLink to="/integrations" className={linkClass}>
-          <span>🔌</span>
-          Integrations
-        </NavLink>
+      <nav className="flex-1 p-3 space-y-1">
+        <NavLink to="/" end className={linkClass}>Dashboard</NavLink>
+        <NavLink to="/sandbox" className={linkClass}>Sandbox</NavLink>
+        <NavLink to="/jobs" className={linkClass}>Jobs</NavLink>
+        <NavLink to="/templates" className={linkClass}>Templates</NavLink>
+        <NavLink to="/integrations" className={linkClass}>Integrations</NavLink>
       </nav>
 
-      {/* Footer with User Menu */}
-      <div className="border-t border-gray-700 pt-4 mt-4">
+      <div className="border-t border-gray-200 p-3">
         <UserMenu />
       </div>
     </aside>
