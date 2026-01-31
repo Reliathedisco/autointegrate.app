@@ -10,13 +10,13 @@ import Billing from "./routes/Billing";
 import PaymentSuccess from "./routes/PaymentSuccess";
 import Navbar from "./components/Navbar";
 import AuthGuard from "./components/AuthGuard";
-import PaymentBanner from "./components/PaymentBanner";
 
 const queryClient = new QueryClient();
 
 function AppRoutes() {
   const location = useLocation();
-  
+
+  // Handle payment success page without auth guard
   if (location.pathname === "/payment-success") {
     return <PaymentSuccess />;
   }
@@ -27,22 +27,19 @@ function AppRoutes() {
 
   return (
     <AuthGuard>
-      {(showBilling) => (
-        <div className="flex">
+      {() => (
+        <div className="flex min-h-screen bg-gray-50">
           <Navbar />
-          <main className="flex-1 bg-gray-50 min-h-screen">
-            {showBilling && location.pathname !== "/billing" && <PaymentBanner />}
-            <div className="p-6">
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/jobs" element={<Jobs />} />
-                <Route path="/templates" element={<Templates />} />
-                <Route path="/sandbox" element={<Sandbox />} />
-                <Route path="/integrations" element={<Integrations />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/billing" element={<Billing />} />
-              </Routes>
-            </div>
+          <main className="flex-1 p-6">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/jobs" element={<Jobs />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/sandbox" element={<Sandbox />} />
+              <Route path="/integrations" element={<Integrations />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/billing" element={<Billing />} />
+            </Routes>
           </main>
         </div>
       )}

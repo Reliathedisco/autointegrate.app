@@ -8,18 +8,13 @@ interface AuthGuardProps {
 }
 
 export default function AuthGuard({ children }: AuthGuardProps) {
-  const { user, hasPaid, isLoading, isAuthenticated } = useAuth();
+  const { hasPaid, isLoading, isAuthenticated } = useAuth();
   const location = useLocation();
-
-  console.log("[AuthGuard] Rendering:", { isLoading, isAuthenticated, hasPaid, userId: user?.id });
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-300 border-t-gray-600"></div>
       </div>
     );
   }
@@ -28,68 +23,45 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     const isFromPayment = location.search.includes("from=payment");
 
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">AutoIntegrate</h1>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-full max-w-sm mx-auto px-6">
+          <h1 className="text-2xl font-semibold text-gray-900 text-center mb-2">AutoIntegrate</h1>
 
-          {isFromPayment ? (
-            <>
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-green-800 font-semibold">Payment received!</span>
-                </div>
-                <p className="text-green-700 text-sm">
-                  Sign in to activate your account.
-                </p>
-              </div>
-              <div className="flex flex-col gap-3 items-center">
-                <SignInButton mode="modal">
-                  <button className="inline-block px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors text-lg">
-                    Sign In to Continue
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="text-sm text-gray-600 hover:text-gray-900 underline">
-                    Create an account instead
-                  </button>
-                </SignUpButton>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="text-gray-600 mb-6">
-                Create an account or sign in to get started.
-              </p>
-              <div className="flex flex-col gap-3 items-center">
-                <SignUpButton mode="modal">
-                  <button className="inline-block px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors text-lg">
-                    Get Started
-                  </button>
-                </SignUpButton>
-                <SignInButton mode="modal">
-                  <button className="text-sm text-gray-600 hover:text-gray-900 underline">
-                    I already have an account
-                  </button>
-                </SignInButton>
-              </div>
-              <p className="text-gray-500 text-sm mt-4">
-                Free to sign up. Use Google, GitHub, Apple, or email.
-              </p>
-            </>
+          {isFromPayment && (
+            <div className="bg-green-50 text-green-700 text-sm rounded-lg p-3 mb-4 text-center">
+              Payment received! Sign in to continue.
+            </div>
           )}
+
+          <p className="text-gray-500 text-center text-sm mb-6">
+            Add API integrations to your projects in minutes.
+          </p>
+
+          <div className="space-y-3">
+            <SignInButton mode="modal">
+              <button className="w-full py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors">
+                Sign In
+              </button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="w-full py-3 bg-white text-gray-900 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                Create Account
+              </button>
+            </SignUpButton>
+          </div>
+
+          <p className="text-gray-400 text-xs text-center mt-4">
+            Google, GitHub, or email
+          </p>
         </div>
       </div>
     );
   }
 
-  // Deterministic routing: unpaid users go to Billing (no ambiguous middle state)
+  // Unpaid users go to Billing
   if (!hasPaid && location.pathname !== "/billing") {
     return <Navigate to="/billing" replace />;
   }
 
-  console.log("[AuthGuard] Routing decision:", { hasPaid, showBilling: !hasPaid });
   return <>{children(!hasPaid)}</>;
 }
