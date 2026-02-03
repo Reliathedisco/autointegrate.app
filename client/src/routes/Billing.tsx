@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth";
 
 export default function Billing() {
-  const { user, hasPaid, refreshPaymentStatus, isAuthenticated, getAuthHeaders } = useAuth();
+  const { hasPaid, refreshPaymentStatus } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -28,14 +28,9 @@ export default function Billing() {
     setIsLoading(true);
     setError(null);
     try {
-      if (!isAuthenticated) {
-        navigate("/?from=payment", { replace: true });
-        return;
-      }
-      const authHeaders = await getAuthHeaders();
       const res = await fetch("/api/billing/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
       const data = await res.json();
@@ -123,7 +118,7 @@ export default function Billing() {
       )}
 
       <p className="text-center text-gray-400 text-xs mt-4">
-        Logged in as {user?.email}
+        Access is stored locally in this browser.
       </p>
     </div>
   );
