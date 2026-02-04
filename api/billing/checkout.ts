@@ -1,20 +1,5 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClerkClient, verifyToken } from "@clerk/backend";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getStripeClient } from "../../server/utils/stripe.js";
-import { db } from "../../server/db.js";
-import { users } from "../../shared/models/auth.js";
-import { eq } from "drizzle-orm";
-
-const clerkSecretKey = process.env.CLERK_SECRET_KEY;
-const clerkClient = clerkSecretKey
-  ? createClerkClient({ secretKey: clerkSecretKey })
-  : null;
-
-function getPrimaryEmailFromClerkUser(user: any): string | null {
-  const primaryId = user?.primaryEmailAddressId;
-  const emailObj = user?.emailAddresses?.find((e: any) => e.id === primaryId);
-  return emailObj?.emailAddress ?? null;
-}
 
 function getAppBaseUrl(req: VercelRequest): string {
   if (process.env.APP_URL) return process.env.APP_URL;
@@ -32,46 +17,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const baseUrl = getAppBaseUrl(req);
   const isProduction = process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
 
-  let userId: string | undefined;
-  let userEmail: string | undefined;
-
-  // Try to get user from Clerk token
-  const authHeader = req.headers?.authorization as string | undefined;
-  if (authHeader?.startsWith("Bearer ") && clerkSecretKey) {
-    const token = authHeader.slice("Bearer ".length).trim();
-    try {
-      const payload: any = await verifyToken(token, { secretKey: clerkSecretKey });
-      userId = payload?.sub || undefined;
-      if (userId && clerkClient) {
-        const clerkUser = await clerkClient.users.getUser(userId);
-        userEmail = getPrimaryEmailFromClerkUser(clerkUser) || undefined;
-        
-        // Upsert user
-        const [existingUser] = await db.select().from(users).where(eq(users.id, userId));
-        if (!existingUser) {
-          await db.insert(users).values({
-            id: userId,
-            email: userEmail ?? null,
-            firstName: clerkUser.firstName ?? null,
-            lastName: clerkUser.lastName ?? null,
-            profileImageUrl: clerkUser.imageUrl ?? null,
-            hasPaid: "false",
-          });
-        }
-      }
-    } catch {
-      // Allow anonymous checkout
-    }
-  }
+  const userId = "guest";
+  const body = typeof req.body === "object" && req.body ? req.body : {};
+  const userEmail = typeof (body as any).email === "string" ? (body as any).email : undefined;
 
   const priceId = process.env.STRIPE_PRO_PRICE_ID || process.env.STRIPE_PAYMENT_PRICE_ID;
   
   // Fallback to payment link if no price ID
   if (!priceId) {
     const fallbackLink = process.env.STRIPE_PAYMENT_LINK || "https://buy.stripe.com/7sYaEZ1lP5KX9N0gQ47g401";
-    const url = userId
-      ? `${fallbackLink}?client_reference_id=${encodeURIComponent(userId)}`
-      : fallbackLink;
+    const url = `${fallbackLink}?client_reference_id=${encodeURIComponent(userId)}`;
     return res.json({ url, mode: "payment_link" as const });
   }
 
@@ -88,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       customer_creation: "always",
       metadata: {
         source: "autointegrate",
-        userId: userId || "anonymous",
+        userId,
       },
       custom_text: {
         submit: {
@@ -106,9 +61,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     
     // Local dev fallback
     const fallbackLink = process.env.STRIPE_PAYMENT_LINK || "https://buy.stripe.com/7sYaEZ1lP5KX9N0gQ47g401";
-    const url = userId
-      ? `${fallbackLink}?client_reference_id=${encodeURIComponent(userId)}`
-      : fallbackLink;
+    const url = `${fallbackLink}?client_reference_id=${encodeURIComponent(userId)}`;
     return res.status(200).json({ url, mode: "payment_link" as const });
   }
 }
