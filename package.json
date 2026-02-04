@@ -42,6 +42,7 @@
     "fs-extra": "^11.2.0",
     "memoizee": "^0.4.17",
     "monaco-editor": "^0.55.1",
+    "next-auth": "^4.25.0",
     "openai": "^4.0.0",
     "openid-client": "^6.8.1",
     "passport": "^0.7.0",
