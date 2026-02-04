@@ -11,7 +11,7 @@ export default function LoginPage() {
     e.preventDefault();
     setStatus("sending");
     const res = await signIn("email", { email, redirect: false });
-    if ((res as any)?.ok) {
+    if (res?.ok) {
       setStatus("sent");
     } else {
       setStatus("error");
