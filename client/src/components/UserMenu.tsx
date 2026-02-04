@@ -6,9 +6,8 @@ export default function UserMenu() {
   const { user, hasPaid, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (!user) return null;
-
-  const displayName = user.firstName || user.email?.split("@")[0] || "Account";
+  const displayName = user?.firstName || user?.email?.split("@")[0] || "Guest";
+  const secondaryLabel = user?.email ?? "Local access (no login required)";
 
   return (
     <div className="relative">
@@ -16,7 +15,7 @@ export default function UserMenu() {
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center gap-2 p-2 rounded hover:bg-gray-50 text-left"
       >
-        {user.profileImageUrl ? (
+        {user?.profileImageUrl ? (
           <img src={user.profileImageUrl} alt="" className="w-7 h-7 rounded-full" />
         ) : (
           <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
@@ -34,7 +33,7 @@ export default function UserMenu() {
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
           <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
             <div className="px-3 py-2 border-b border-gray-100">
-              <div className="text-xs text-gray-500 truncate">{user.email}</div>
+              <div className="text-xs text-gray-500 truncate">{secondaryLabel}</div>
               {hasPaid ? (
                 <div className="text-xs text-green-600 mt-0.5">Pro</div>
               ) : (
@@ -57,7 +56,7 @@ export default function UserMenu() {
               }}
               className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
             >
-              Sign Out
+              Reset local access
             </button>
           </div>
         </>
