@@ -2,6 +2,9 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { db } from "../server/db.js";
 import { users } from "../shared/models/auth.js";
 import { eq } from "drizzle-orm";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwtkey"; // TODO: Use a strong, random secret in production
 
 function getUserFromCookie(req: VercelRequest): { userId: string; email: string } | null {
   try {
@@ -10,14 +13,9 @@ function getUserFromCookie(req: VercelRequest): { userId: string; email: string 
     if (!authCookie) return null;
     
     const sessionToken = authCookie.split('=')[1];
-    const sessionData = JSON.parse(Buffer.from(sessionToken, 'base64').toString());
+    const decoded = jwt.verify(sessionToken, JWT_SECRET) as { userId: string; email: string; exp: number };
     
-    // Check expiry
-    if (sessionData.exp && Date.now() > sessionData.exp) {
-      return null;
-    }
-    
-    return { userId: sessionData.userId, email: sessionData.email };
+    return { userId: decoded.userId, email: decoded.email };
   } catch {
     return null;
   }

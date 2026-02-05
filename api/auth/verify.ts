@@ -3,6 +3,12 @@ import { db } from "../../server/db.js";
 import { users, magicTokens } from "../../shared/models/auth.js";
 import { eq, and, gt } from "drizzle-orm";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwtkey"; // TODO: Use a strong, random secret in production
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwtkey"; // TODO: Use a strong, random secret in production
 
 function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");
@@ -75,8 +81,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Set auth cookie (simple JWT)
-    const sessionData = JSON.stringify({ userId: user.id, email: user.email, exp: Date.now() + 30 * 24 * 60 * 60 * 1000 });
-    const sessionToken = Buffer.from(sessionData).toString('base64');
+    const sessionToken = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '30d' });
     
     res.setHeader('Set-Cookie', `auth_session=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`);
 
