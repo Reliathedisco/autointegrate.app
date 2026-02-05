@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth";
 
 export default function Billing() {
-  const { user, hasPaid, refreshPaymentStatus, isAuthenticated, getAuthHeaders } = useAuth();
+  const { user, hasPaid, isAuthenticated, getAuthHeaders } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -29,15 +29,18 @@ export default function Billing() {
     setError(null);
     try {
       if (!isAuthenticated) {
-        navigate("/?from=payment", { replace: true });
+        setError("Please sign in first");
+        setIsLoading(false);
         return;
       }
-      const authHeaders = await getAuthHeaders();
+      
       const res = await fetch("/api/billing/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Include session cookie
         body: JSON.stringify({}),
       });
+      
       const data = await res.json();
       if (!res.ok || !data.url) {
         throw new Error(data.error || "Failed to start checkout");
@@ -45,20 +48,8 @@ export default function Billing() {
       window.location.href = data.url;
     } catch (err: any) {
       setError(err?.message || "Something went wrong");
-    } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleRefresh = async () => {
-    setIsLoading(true);
-    const isPaid = await refreshPaymentStatus();
-    if (isPaid) {
-      navigate("/", { replace: true });
-    } else {
-      setError("No payment found yet. Try again in a moment.");
-    }
-    setIsLoading(false);
   };
 
   return (
@@ -111,16 +102,6 @@ export default function Billing() {
           <p className="text-red-600 text-sm mt-3 text-center">{error}</p>
         )}
       </div>
-
-      {!hasPaid && (
-        <button
-          onClick={handleRefresh}
-          disabled={isLoading}
-          className="w-full py-2 text-sm text-gray-600 hover:text-gray-900"
-        >
-          Already paid? Click to refresh
-        </button>
-      )}
 
       <p className="text-center text-gray-400 text-xs mt-4">
         Logged in as {user?.email}

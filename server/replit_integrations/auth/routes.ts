@@ -1,49 +1,13 @@
 import type { Express } from "express";
 import { authStorage } from "./storage.js";
 import { isAuthenticated } from "./replitAuth.js";
-import { createClerkClient, verifyToken } from "@clerk/backend";
 
 type AuthContext = { userId: string };
 
-const clerkSecretKey = process.env.CLERK_SECRET_KEY;
-const clerkClient = clerkSecretKey
-  ? createClerkClient({ secretKey: clerkSecretKey })
-  : null;
-
-function getPrimaryEmailFromClerkUser(user: any): string | null {
-  const primaryId = user?.primaryEmailAddressId;
-  const emailObj = user?.emailAddresses?.find((e: any) => e.id === primaryId);
-  return emailObj?.emailAddress ?? null;
-}
-
 async function getAuthContext(req: any): Promise<AuthContext | null> {
-  const authHeader = req.headers?.authorization as string | undefined;
-  if (authHeader?.startsWith("Bearer ") && clerkSecretKey) {
-    const token = authHeader.slice("Bearer ".length).trim();
-    try {
-      const payload: any = await verifyToken(token, { secretKey: clerkSecretKey });
-      const userId = payload?.sub;
-      if (!userId) return null;
-
-      // Ensure we have a matching user record in our DB
-      try {
-        const clerkUser = clerkClient ? await clerkClient.users.getUser(userId) : null;
-        const email = clerkUser ? getPrimaryEmailFromClerkUser(clerkUser) : null;
-        await authStorage.upsertUser({
-          id: userId,
-          email,
-          firstName: clerkUser?.firstName ?? null,
-          lastName: clerkUser?.lastName ?? null,
-          profileImageUrl: clerkUser?.imageUrl ?? null,
-        });
-      } catch (e) {
-        console.warn("[Auth] Clerk user upsert warning:", (e as any)?.message || e);
-      }
-
-      return { userId };
-    } catch {
-      // Fall through to session auth.
-    }
+  // Check session-based auth first (magic link)
+  if (req.session?.userId) {
+    return { userId: req.session.userId };
   }
 
   // Fallback: Replit session auth (existing)
@@ -61,18 +25,97 @@ async function requireAuthAny(req: any, res: any, next: any) {
   return next();
 }
 
+async function refreshHasPaidFromStripe(params: {
+  userId: string;
+  email: string | null;
+  currentHasPaid: boolean;
+}): Promise<boolean> {
+  const { userId, email, currentHasPaid } = params;
+  if (currentHasPaid) return true;
+  if (!userId) return false;
+
+  try {
+    const { getStripeClient } = await import("../../utils/stripe.js");
+    const stripe = await getStripeClient();
+    const anyStripe = stripe as any;
+
+    // Best-effort: search checkout sessions by client_reference_id (most deterministic).
+    // Falls back to listing recent sessions/charges for local dev.
+    const queries = [
+      `client_reference_id:'${userId.replace(/'/g, "\\'")}' AND payment_status:'paid'`,
+      `metadata['userId']:'${userId.replace(/'/g, "\\'")}' AND payment_status:'paid'`,
+    ];
+
+    if (anyStripe?.checkout?.sessions?.search) {
+      for (const query of queries) {
+        try {
+          const result = await anyStripe.checkout.sessions.search({
+            query,
+            limit: 1,
+          });
+          if (result?.data?.[0]) return true;
+        } catch {
+          // ignore and try next query/fallback
+        }
+      }
+    }
+
+    // Fallback: list recent sessions and match client_reference_id.
+    try {
+      const sessions = await stripe.checkout.sessions.list({ limit: 100 });
+      const matched = sessions.data.find(
+        (s) =>
+          s.client_reference_id === userId &&
+          (s.payment_status === "paid" || s.payment_status === "no_payment_required") &&
+          s.status === "complete"
+      );
+      if (matched) return true;
+    } catch {
+      // ignore
+    }
+
+    // Last fallback: scan recent charges by email (weak, but can unblock local dev).
+    if (email) {
+      try {
+        const charges = await stripe.charges.list({ limit: 100 });
+        const hasSuccessfulCharge = charges.data.some(
+          (charge) =>
+            charge.billing_details.email === email && charge.status === "succeeded"
+        );
+        if (hasSuccessfulCharge) return true;
+      } catch {
+        // ignore
+      }
+    }
+  } catch (stripeError) {
+    console.warn("[Auth] Stripe refresh failed:", stripeError);
+  }
+
+  return false;
+}
+
 export function registerAuthRoutes(app: Express): void {
   app.get("/api/me", requireAuthAny, async (req: any, res) => {
     try {
       const userId = req.auth.userId;
-      const user = await authStorage.getUser(userId);
+      
+      // Try to get user from database
+      let user = null;
+      let hasPaid = false;
+      
+      try {
+        user = await authStorage.getUser(userId);
+        hasPaid = user?.hasPaid === "true";
+      } catch (dbError) {
+        console.warn("[/api/me] Database unavailable");
+        return res.status(500).json({ message: "Database unavailable" });
+      }
 
       if (!user) {
         console.log(`[/api/me] User ${userId} not found in database`);
         return res.status(404).json({ message: "User not found" });
       }
 
-      const hasPaid = user.hasPaid === "true";
       console.log(`[/api/me] User ${userId} (${user.email}) - hasPaid: ${hasPaid}`);
 
       res.json({
@@ -101,47 +144,26 @@ export function registerAuthRoutes(app: Express): void {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Check if user already paid in database
+      // Check if user already paid in database; if not, try to verify with Stripe.
       let hasPaid = user.hasPaid === "true";
-      
-      // If not paid yet, check Stripe for recent payments by email
-      if (!hasPaid && user.email) {
-        try {
-          const { getStripeClient } = await import("../../utils/stripe.js");
-          const stripe = await getStripeClient();
-          
-          // Search for successful payments with this email
-          const charges = await stripe.charges.list({
-            limit: 10,
-          });
-          
-          const hasSuccessfulCharge = charges.data.some(
-            charge => charge.billing_details.email === user.email && charge.status === "succeeded"
-          );
-          
-          if (hasSuccessfulCharge) {
-            // Update user as paid
-            await authStorage.upsertUser({
-              id: userId,
-              email: user.email,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              profileImageUrl: user.profileImageUrl,
-            });
-            
-            // Manually set hasPaid
-            const { db } = await import("../../db.js");
-            const { users } = await import("../../../shared/models/auth.js");
-            const { eq } = await import("drizzle-orm");
-            
-            await db.update(users).set({ hasPaid: "true" }).where(eq(users.id, userId));
-            
-            hasPaid = true;
-            console.log(`[/api/me/refresh] Found payment in Stripe for ${user.email}, updated hasPaid=true`);
-          }
-        } catch (stripeError) {
-          console.warn("[/api/me/refresh] Could not check Stripe:", stripeError);
-        }
+      const refreshedHasPaid = await refreshHasPaidFromStripe({
+        userId,
+        email: user.email ?? null,
+        currentHasPaid: hasPaid,
+      });
+
+      if (!hasPaid && refreshedHasPaid) {
+        const { db } = await import("../../db.js");
+        const { users } = await import("../../../shared/models/auth.js");
+        const { eq } = await import("drizzle-orm");
+        await db
+          .update(users)
+          .set({ hasPaid: true, updatedAt: new Date() })
+          .where(eq(users.id, userId));
+        hasPaid = true;
+        console.log(
+          `[/api/me/refresh] Verified Stripe payment for user ${userId} (${user.email}), updated hasPaid=true`
+        );
       }
 
       console.log(`[/api/me/refresh] User ${userId} (${user.email}) - hasPaid: ${hasPaid}`);
@@ -194,8 +216,27 @@ export function registerAuthRoutes(app: Express): void {
         return res.status(404).json({ message: "User not found" });
       }
 
+      // Keep this endpoint backwards compatible, but make it actually refresh.
+      let hasPaid = user.hasPaid === "true";
+      const refreshedHasPaid = await refreshHasPaidFromStripe({
+        userId,
+        email: user.email ?? null,
+        currentHasPaid: hasPaid,
+      });
+
+      if (!hasPaid && refreshedHasPaid) {
+        const { db } = await import("../../db.js");
+        const { users } = await import("../../../shared/models/auth.js");
+        const { eq } = await import("drizzle-orm");
+        await db
+          .update(users)
+          .set({ hasPaid: true, updatedAt: new Date() })
+          .where(eq(users.id, userId));
+        hasPaid = true;
+      }
+
       res.json({
-        hasPaid: user.hasPaid === "true",
+        hasPaid,
       });
     } catch (error) {
       console.error("Error refreshing payment status:", error);

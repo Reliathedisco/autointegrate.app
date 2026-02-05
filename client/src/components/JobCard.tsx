@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 interface JobCardProps {
   job: any;
   onDelete?: (jobId: string) => void;
+  onRefresh?: (jobId: string) => void;
 }
 
-export default function JobCard({ job, onDelete }: JobCardProps) {
+export default function JobCard({ job, onDelete, onRefresh }: JobCardProps) {
   const navigate = useNavigate();
   
   const statusColors: Record<string, string> = {
@@ -23,6 +24,10 @@ export default function JobCard({ job, onDelete }: JobCardProps) {
     if (window.confirm("Are you sure you want to delete this job?")) {
       onDelete?.(job.id);
     }
+  };
+
+  const handleRefresh = () => {
+    onRefresh?.(job.id);
   };
 
   return (
@@ -71,6 +76,17 @@ export default function JobCard({ job, onDelete }: JobCardProps) {
         >
           Use Job
         </button>
+        {onRefresh && (
+          <button
+            onClick={handleRefresh}
+            className="px-3 py-2 text-gray-600 text-sm rounded-lg hover:bg-gray-50 transition-colors border border-gray-200 flex items-center gap-1"
+            title="Refresh job status and PR"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        )}
         <button
           onClick={handleDelete}
           className="px-3 py-2 text-red-600 text-sm rounded-lg hover:bg-red-50 transition-colors border border-red-200"

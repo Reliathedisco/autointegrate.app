@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import api from "../lib/api";
+import { useAuth } from "../hooks/use-auth";
+import BillingBanner from "../components/BillingBanner";
 
 interface Stats {
   jobs: number;
@@ -10,6 +12,7 @@ interface Stats {
 }
 
 export default function Dashboard() {
+  const { hasPaid } = useAuth();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -48,6 +51,7 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-4xl mx-auto">
+      {!hasPaid && <BillingBanner />}
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">Dashboard</h1>
 
       {/* Quick Actions */}

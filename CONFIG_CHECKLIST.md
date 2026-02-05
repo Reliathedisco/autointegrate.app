@@ -128,6 +128,12 @@ Files configured:
 3. Select scopes: `repo`, `workflow`
 4. Copy token and add to `.env` as `GITHUB_TOKEN`
 
+### Pull request configuration (optional)
+Control how AutoIntegrate creates pull requests (e.g. for PR #2 or all jobs):
+
+- **PR_DRAFT** – Set to `true` to create new PRs as drafts. Default: not set (PRs are ready for review).
+- **PR_LABELS** – Comma-separated labels to add to created PRs (e.g. `autointegrate,automated`). Default: `autointegrate`.
+
 ### OpenAI API Key
 1. Go to https://platform.openai.com/api-keys
 2. Click "Create new secret key"

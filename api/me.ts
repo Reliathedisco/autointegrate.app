@@ -1,73 +1,41 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClerkClient, verifyToken } from "@clerk/backend";
 import { db } from "../server/db.js";
 import { users } from "../shared/models/auth.js";
 import { eq } from "drizzle-orm";
+import jwt from "jsonwebtoken";
 
-const clerkSecretKey = process.env.CLERK_SECRET_KEY;
-const clerkClient = clerkSecretKey
-  ? createClerkClient({ secretKey: clerkSecretKey })
-  : null;
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwtkey"; // TODO: Use a strong, random secret in production
 
-function getPrimaryEmailFromClerkUser(user: any): string | null {
-  const primaryId = user?.primaryEmailAddressId;
-  const emailObj = user?.emailAddresses?.find((e: any) => e.id === primaryId);
-  return emailObj?.emailAddress ?? null;
+function getUserFromCookie(req: VercelRequest): { userId: string; email: string } | null {
+  try {
+    const cookies = req.headers.cookie?.split(';').map(c => c.trim()) || [];
+    const authCookie = cookies.find(c => c.startsWith('auth_session='));
+    if (!authCookie) return null;
+    
+    const sessionToken = authCookie.split('=')[1];
+    const decoded = jwt.verify(sessionToken, JWT_SECRET) as { userId: string; email: string; exp: number };
+    
+    return { userId: decoded.userId, email: decoded.email };
+  } catch {
+    return null;
+  }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    // Verify Clerk token
-    const authHeader = req.headers?.authorization as string | undefined;
-    if (!authHeader?.startsWith("Bearer ") || !clerkSecretKey) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const token = authHeader.slice("Bearer ".length).trim();
-    let userId: string;
+    const session = getUserFromCookie(req);
     
-    try {
-      const payload: any = await verifyToken(token, { secretKey: clerkSecretKey });
-      userId = payload?.sub;
-      if (!userId) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-    } catch (error) {
+    if (!session) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // Ensure user exists in database
-    try {
-      const clerkUser = clerkClient ? await clerkClient.users.getUser(userId) : null;
-      const email = clerkUser ? getPrimaryEmailFromClerkUser(clerkUser) : null;
-      
-      const [existingUser] = await db.select().from(users).where(eq(users.id, userId));
-      
-      if (!existingUser) {
-        await db.insert(users).values({
-          id: userId,
-          email,
-          firstName: clerkUser?.firstName ?? null,
-          lastName: clerkUser?.lastName ?? null,
-          profileImageUrl: clerkUser?.imageUrl ?? null,
-          hasPaid: "false",
-        });
-      }
-    } catch (e) {
-      console.warn("[Auth] User upsert warning:", (e as any)?.message || e);
-    }
-
-    // Get user data
-    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    const [user] = await db.select().from(users).where(eq(users.id, session.userId));
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const hasPaid = user.hasPaid === "true";
-    console.log(`[/api/me] User ${userId} (${user.email}) - hasPaid: ${hasPaid}`);
-
-    res.json({
+    return res.json({
       user: {
         id: user.id,
         email: user.email,
@@ -75,10 +43,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         lastName: user.lastName,
         profileImageUrl: user.profileImageUrl,
       },
-      hasPaid,
+      hasPaid: user.hasPaid === "true",
     });
   } catch (error) {
     console.error("[/api/me] Error:", error);
-    res.status(500).json({ message: "Failed to fetch user" });
+    return res.status(500).json({ message: "Failed to fetch user" });
   }
 }

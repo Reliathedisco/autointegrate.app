@@ -1,24 +1,29 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createClerkClient, verifyToken } from "@clerk/backend";
 import { getStripeClient } from "../../server/utils/stripe.js";
 import { db } from "../../server/db.js";
 import { users } from "../../shared/models/auth.js";
 import { eq } from "drizzle-orm";
+import jwt from "jsonwebtoken";
 
-const clerkSecretKey = process.env.CLERK_SECRET_KEY;
-const clerkClient = clerkSecretKey
-  ? createClerkClient({ secretKey: clerkSecretKey })
-  : null;
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwtkey";
 
-function getPrimaryEmailFromClerkUser(user: any): string | null {
-  const primaryId = user?.primaryEmailAddressId;
-  const emailObj = user?.emailAddresses?.find((e: any) => e.id === primaryId);
-  return emailObj?.emailAddress ?? null;
+function getUserFromCookie(req: VercelRequest): { userId: string; email: string } | null {
+  try {
+    const cookies = req.headers.cookie?.split(';').map(c => c.trim()) || [];
+    const authCookie = cookies.find(c => c.startsWith('auth_session='));
+    if (!authCookie) return null;
+    
+    const sessionToken = authCookie.split('=')[1];
+    const decoded = jwt.verify(sessionToken, JWT_SECRET) as { userId: string; email: string; exp: number };
+    
+    return { userId: decoded.userId, email: decoded.email };
+  } catch {
+    return null;
+  }
 }
 
 function getAppBaseUrl(req: VercelRequest): string {
   if (process.env.APP_URL) return process.env.APP_URL;
-  
   const host = req.headers.host || 'localhost:4000';
   const protocol = host.includes('localhost') ? 'http' : 'https';
   return `${protocol}://${host}`;
@@ -29,58 +34,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const baseUrl = getAppBaseUrl(req);
-  const isProduction = process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
-
-  let userId: string | undefined;
-  let userEmail: string | undefined;
-
-  // Try to get user from Clerk token
-  const authHeader = req.headers?.authorization as string | undefined;
-  if (authHeader?.startsWith("Bearer ") && clerkSecretKey) {
-    const token = authHeader.slice("Bearer ".length).trim();
-    try {
-      const payload: any = await verifyToken(token, { secretKey: clerkSecretKey });
-      userId = payload?.sub || undefined;
-      if (userId && clerkClient) {
-        const clerkUser = await clerkClient.users.getUser(userId);
-        userEmail = getPrimaryEmailFromClerkUser(clerkUser) || undefined;
-        
-        // Upsert user
-        const [existingUser] = await db.select().from(users).where(eq(users.id, userId));
-        if (!existingUser) {
-          await db.insert(users).values({
-            id: userId,
-            email: userEmail ?? null,
-            firstName: clerkUser.firstName ?? null,
-            lastName: clerkUser.lastName ?? null,
-            profileImageUrl: clerkUser.imageUrl ?? null,
-            hasPaid: "false",
-          });
-        }
-      }
-    } catch {
-      // Allow anonymous checkout
-    }
+  const session = getUserFromCookie(req);
+  if (!session) {
+    return res.status(401).json({ error: "Please sign in first" });
   }
 
-  const priceId = process.env.STRIPE_PRO_PRICE_ID || process.env.STRIPE_PAYMENT_PRICE_ID;
+  const { userId, email: userEmail } = session;
+  const baseUrl = getAppBaseUrl(req);
   
-  // Fallback to payment link if no price ID
+  const priceId = process.env.STRIPE_PRO_PRICE_ID || process.env.STRIPE_PAYMENT_PRICE_ID;
+  const fallbackLink = process.env.STRIPE_PAYMENT_LINK || "https://buy.stripe.com/14AfZj4y1b5he3ggQ47g40c";
+
   if (!priceId) {
-    const fallbackLink = process.env.STRIPE_PAYMENT_LINK || "https://buy.stripe.com/7sYaEZ1lP5KX9N0gQ47g401";
-    const url = userId
-      ? `${fallbackLink}?client_reference_id=${encodeURIComponent(userId)}`
-      : fallbackLink;
+    const url = `${fallbackLink}?client_reference_id=${encodeURIComponent(userId)}`;
     return res.json({ url, mode: "payment_link" as const });
   }
 
   try {
     const stripe = await getStripeClient();
 
-    const session = await stripe.checkout.sessions.create({
+    const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: priceId, quantity: 1 }],
+      allow_promotion_codes: true,
       success_url: `${baseUrl}/payment-success`,
       cancel_url: `${baseUrl}/billing?canceled=true`,
       client_reference_id: userId,
@@ -88,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       customer_creation: "always",
       metadata: {
         source: "autointegrate",
-        userId: userId || "anonymous",
+        userId,
       },
       custom_text: {
         submit: {
@@ -97,18 +73,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     });
 
-    return res.json({ url: session.url, mode: "checkout_session" as const });
+    return res.json({ url: checkoutSession.url, mode: "checkout_session" as const });
   } catch (err: any) {
     console.error("[Billing] Checkout error:", err);
-    if (isProduction) {
-      return res.status(500).json({ error: "Failed to start Stripe checkout" });
-    }
-    
-    // Local dev fallback
-    const fallbackLink = process.env.STRIPE_PAYMENT_LINK || "https://buy.stripe.com/7sYaEZ1lP5KX9N0gQ47g401";
-    const url = userId
-      ? `${fallbackLink}?client_reference_id=${encodeURIComponent(userId)}`
-      : fallbackLink;
-    return res.status(200).json({ url, mode: "payment_link" as const });
+    return res.status(500).json({ error: "Failed to start Stripe checkout" });
   }
 }
