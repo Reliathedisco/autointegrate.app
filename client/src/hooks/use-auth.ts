@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth as useClerkAuth, useUser } from "@clerk/clerk-react";
 
 interface User {
   id: string;
@@ -18,86 +17,51 @@ interface AuthState {
 }
 
 export function useAuth() {
-  const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
-  const { isSignedIn, getToken, signOut } = useClerkAuth();
   const navigate = useNavigate();
-
+  const [user, setUser] = useState<User | null>(null);
   const [hasPaid, setHasPaid] = useState(false);
-  const [isBillingLoading, setIsBillingLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchUser = useCallback(async () => {
     try {
-      if (!isClerkLoaded) return;
-
-      if (!isSignedIn) {
-        setHasPaid(false);
-        setIsBillingLoading(false);
-        return;
-      }
-
-      const token = await getToken();
+      setIsLoading(true);
       const res = await fetch("/api/me", {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        credentials: "include", // Include session cookie
       });
+      
       if (res.ok) {
         const data = await res.json();
         console.log("[useAuth] /api/me response:", {
           hasPaid: data.hasPaid,
           userId: data.user?.id,
         });
+        setUser(data.user || null);
         setHasPaid(data.hasPaid === true);
-        setIsBillingLoading(false);
       } else {
         console.log("[useAuth] /api/me returned", res.status);
+        setUser(null);
         setHasPaid(false);
-        setIsBillingLoading(false);
       }
     } catch (error) {
       console.error("[useAuth] Error fetching /api/me:", error);
+      setUser(null);
       setHasPaid(false);
-      setIsBillingLoading(false);
+    } finally {
+      setIsLoading(false);
     }
-  }, [getToken, isClerkLoaded, isSignedIn]);
-
-  const refreshPaymentStatus = useCallback(async (): Promise<boolean> => {
-    try {
-      const token = await getToken();
-      const res = await fetch("/api/me/refresh", {
-        method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      });
-      if (res.ok) {
-        const data = await res.json();
-        console.log("[useAuth] /api/me/refresh response:", { hasPaid: data.hasPaid });
-        setHasPaid(data.hasPaid === true);
-        return data.hasPaid === true;
-      }
-      return false;
-    } catch (error) {
-      console.error("[useAuth] Error refreshing payment status:", error);
-      return false;
-    }
-  }, [getToken]);
+    
+    return { data: { hasPaid } };
+  }, []);
 
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
 
-  const mappedUser: User | null = clerkUser
-    ? {
-        id: clerkUser.id,
-        email: clerkUser.primaryEmailAddress?.emailAddress ?? null,
-        firstName: clerkUser.firstName ?? null,
-        lastName: clerkUser.lastName ?? null,
-        profileImageUrl: clerkUser.imageUrl ?? null,
-      }
-    : null;
-
   const state: AuthState = {
-    user: mappedUser,
+    user,
     hasPaid,
-    isLoading: !isClerkLoaded || isBillingLoading,
-    isAuthenticated: Boolean(isSignedIn),
+    isLoading,
+    isAuthenticated: Boolean(user),
   };
 
   return {
@@ -105,15 +69,16 @@ export function useAuth() {
     hasPaid: state.hasPaid,
     isLoading: state.isLoading,
     isAuthenticated: state.isAuthenticated,
-    getAuthHeaders: async () => {
-      const token = await getToken();
-      return token ? { Authorization: `Bearer ${token}` } : {};
-    },
-    refreshPaymentStatus,
+    getAuthHeaders: async () => ({}), // Session-based, no headers needed
     refetch: fetchUser,
     logout: async () => {
       try {
-        await signOut();
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+        setUser(null);
+        setHasPaid(false);
         navigate("/", { replace: true });
       } catch {
         navigate("/", { replace: true });

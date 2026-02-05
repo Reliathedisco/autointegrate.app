@@ -16,6 +16,7 @@ import billingRoutes from "./routes/billing.js";
 import demoRoutes from "./routes/demo.js";
 import metricsRoutes from "./routes/metrics.js";
 import stripeWebhookRoutes from "./routes/stripe-webhook.js";
+import magicAuthRoutes from "./routes/magic-auth.js";
 import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth/index.js";
 
 import { log } from "./utils/logger.js";
@@ -33,25 +34,45 @@ app.use("/api/stripe/webhook", stripeWebhookRoutes);
 app.use(bodyParser.json({ limit: "5mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Setup Replit Auth (must be before other routes)
-// If you're using Clerk-only auth, REPL_ID may be unset. In that case we skip
-// Replit OIDC session auth and rely on Clerk Bearer tokens for /api/me, etc.
-const canUseReplitAuth =
-  Boolean(process.env.REPL_ID) &&
-  Boolean(process.env.SESSION_SECRET) &&
-  Boolean(process.env.DATABASE_URL);
+// Setup session-based auth (for magic links and Replit fallback)
+const hasSessionConfig = Boolean(process.env.SESSION_SECRET) && Boolean(process.env.DATABASE_URL);
 
-if (canUseReplitAuth) {
-  await setupAuth(app);
+if (hasSessionConfig) {
+  const canUseReplitAuth = Boolean(process.env.REPL_ID);
+  
+  if (canUseReplitAuth) {
+    await setupAuth(app);
+    registerAuthRoutes(app);
+  } else {
+    // Simple session auth for magic links (no Replit OIDC)
+    const session = await import("express-session");
+    const ConnectPgSimple = (await import("connect-pg-simple")).default;
+    const PgStore = ConnectPgSimple(session.default);
+    const { pool } = await import("./db.js");
+    
+    app.use(
+      session.default({
+        store: new PgStore({ pool, tableName: "sessions" }),
+        secret: process.env.SESSION_SECRET!,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+          maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
+        },
+      })
+    );
+    
+    log.info("[Auth] Using magic link session auth");
+  }
 } else {
-  log.warn(
-    "[Auth] Replit auth disabled (missing REPL_ID/SESSION_SECRET/DATABASE_URL). Using Clerk token auth only."
-  );
+  log.warn("[Auth] No session config. Auth will not work.");
 }
 
-registerAuthRoutes(app);
-
 // --- ROUTES ---
+app.use("/api/auth", magicAuthRoutes);
 app.use("/api", apiRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/templates", templateRoutes);
@@ -69,10 +90,11 @@ app.use(
   express.static(path.join(process.cwd(), "sandbox"))
 );
 
-// In production, serve the built frontend
+// In production, serve the built frontend (only for non-Vercel environments)
 const isProduction = process.env.NODE_ENV === "production" || process.env.REPLIT_DEPLOYMENT === "1";
+const isVercel = process.env.VERCEL === "1";
 
-if (isProduction) {
+if (isProduction && !isVercel) {
   const clientDistPath = path.join(process.cwd(), "dist", "client");
   app.use(express.static(clientDistPath));
   
@@ -82,7 +104,7 @@ if (isProduction) {
     }
     res.sendFile(path.join(clientDistPath, "index.html"));
   });
-} else {
+} else if (!isVercel) {
   app.get("/", (req, res) => {
     res.json({ ok: true, message: "AutoIntegrate server running" });
   });
