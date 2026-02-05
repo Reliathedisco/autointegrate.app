@@ -10,6 +10,10 @@ export interface PRConfig {
   title: string;
   body: string;
   token: string;
+  /** Create as draft PR (e.g. for PR #2 workflow) */
+  draft?: boolean;
+  /** Labels to add after creation */
+  labels?: string[];
 }
 
 export interface PRResult {
@@ -33,9 +37,24 @@ export async function createPullRequest(config: PRConfig): Promise<PRResult> {
       base: config.base,
       title: config.title,
       body: config.body,
+      draft: config.draft ?? false,
     });
 
-    console.log(`[PR] Created: ${data.html_url}`);
+    console.log(`[PR] Created: ${data.html_url}${config.draft ? " (draft)" : ""}`);
+
+    if (config.labels?.length && data.number != null) {
+      try {
+        await addLabels(
+          config.owner,
+          config.repo,
+          data.number,
+          config.labels,
+          config.token
+        );
+      } catch (labelErr: any) {
+        console.warn(`[PR] Could not add labels: ${labelErr.message}`);
+      }
+    }
 
     return {
       success: true,

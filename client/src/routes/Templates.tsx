@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../lib/api";
 import TemplateCard from "../components/TemplateCard";
+import { useAuth } from "../hooks/use-auth";
+import ProRequiredModal from "../components/ProRequiredModal";
 
 interface TemplateFile {
   path: string;
@@ -8,6 +10,7 @@ interface TemplateFile {
 }
 
 export default function Templates() {
+  const { hasPaid } = useAuth();
   const [templates, setTemplates] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [templateName, setTemplateName] = useState("");
@@ -15,6 +18,7 @@ export default function Templates() {
   const [files, setFiles] = useState<TemplateFile[]>([{ path: "", content: "" }]);
   const [isLoading, setIsLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [showProModal, setShowProModal] = useState(false);
 
   async function loadTemplates() {
     try {
@@ -51,6 +55,11 @@ export default function Templates() {
     
     const validFiles = files.filter(f => f.path && f.content);
     if (validFiles.length === 0) return;
+
+    if (!hasPaid) {
+      setShowProModal(true);
+      return;
+    }
 
     setIsCreating(true);
     try {
@@ -229,6 +238,13 @@ export default function Templates() {
           </div>
         </div>
       )}
+
+      <ProRequiredModal
+        open={showProModal}
+        onClose={() => setShowProModal(false)}
+        actionLabel="creating templates"
+        description="Create reusable templates you can apply in the Sandbox across projects."
+      />
     </div>
   );
 }

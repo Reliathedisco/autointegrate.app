@@ -5,6 +5,8 @@ import FileTree, { TreeNode } from "../components/FileTree";
 import DiffViewer, { FileDiff } from "../components/DiffViewer";
 import IntegrationSidebar from "../components/IntegrationSidebar";
 import EnvValidation, { EnvValidationResult } from "../components/EnvValidation";
+import ProRequiredModal from "../components/ProRequiredModal";
+import { useAuth } from "../hooks/use-auth";
 import Editor from "@monaco-editor/react";
 import ReactMarkdown from "react-markdown";
 
@@ -72,6 +74,9 @@ interface Session {
 
 export default function Sandbox() {
   const [searchParams] = useSearchParams();
+  const { hasPaid } = useAuth();
+  const [showProModal, setShowProModal] = useState(false);
+  const [proActionLabel, setProActionLabel] = useState("this action");
   
   // Session state
   const [session, setSession] = useState<Session | null>(null);
@@ -303,6 +308,17 @@ export default function Sandbox() {
     } finally {
       setGeneratingDiffs(false);
     }
+  }
+
+  function requirePro(actionLabel: string): boolean {
+    // Demo mode remains free.
+    if (session?.isDemo) return true;
+    if (!hasPaid) {
+      setProActionLabel(actionLabel);
+      setShowProModal(true);
+      return false;
+    }
+    return true;
   }
 
   // Commit approved changes
@@ -828,7 +844,10 @@ export default function Sandbox() {
           <IntegrationSidebar
             selectedIntegrations={selectedIntegrations}
             onSelectionChange={setSelectedIntegrations}
-            onApply={applyIntegrations}
+            onApply={() => {
+              if (!requirePro("applying integrations")) return;
+              void applyIntegrations();
+            }}
             loading={generatingDiffs}
             recommendedIntegration={session.isDemo ? "Stripe" : undefined}
             showTimeSavedHint={session.isDemo}
@@ -987,7 +1006,14 @@ export default function Sandbox() {
               <div className="flex-1 min-h-0">
                 <DiffViewer 
                   diffs={diffs} 
-                  onApprove={session.isDemo ? undefined : commitChanges} 
+                  onApprove={
+                    session.isDemo
+                      ? undefined
+                      : (approvedPaths) => {
+                          if (!requirePro("committing generated changes")) return;
+                          void commitChanges(approvedPaths);
+                        }
+                  } 
                 />
               </div>
             </div>
@@ -1022,6 +1048,13 @@ export default function Sandbox() {
           )}
         </div>
       </div>
+
+      <ProRequiredModal
+        open={showProModal}
+        onClose={() => setShowProModal(false)}
+        actionLabel={proActionLabel}
+        description="Generate code with integrations and commit the changes back to your project."
+      />
     </div>
   );
 }

@@ -28,13 +28,14 @@ function getPaymentPriceId(): string | null {
   return (
     process.env.STRIPE_PAYMENT_PRICE_ID ||
     process.env.STRIPE_ONE_TIME_PRICE_ID ||
+    process.env.STRIPE_PRO_PRICE_ID ||
     null
   );
 }
 
 const FALLBACK_PAYMENT_LINK =
   process.env.STRIPE_PAYMENT_LINK ||
-  "https://buy.stripe.com/7sYaEZ1lP5KX9N0gQ47g401";
+  "https://buy.stripe.com/14AfZj4y1b5he3ggQ47g40c";
 
 const clerkSecretKey = process.env.CLERK_SECRET_KEY;
 const clerkClient = clerkSecretKey
@@ -51,7 +52,7 @@ function getPrimaryEmailFromClerkUser(user: any): string | null {
  * Creates a Stripe Checkout Session and returns a redirect URL.
  *
  * - Authenticated: attaches `client_reference_id` and `customer_email`
- * - Unauthenticated: allows checkout; webhook will fall back to customer email if it matches a later login
+ * - Unauthenticated: rejected (simpler UX; payment always ties to an account)
  */
 router.post("/checkout", async (req: Request, res: Response) => {
   const baseUrl = getAppBaseUrl(req);
@@ -93,6 +94,11 @@ router.post("/checkout", async (req: Request, res: Response) => {
     userEmail = userRecord?.email ?? undefined;
   }
 
+  // Simpler flow: require auth before checkout so payment always links to an account.
+  if (!userId) {
+    return res.status(401).json({ error: "Please sign in before starting checkout." });
+  }
+
   const priceId = getPaymentPriceId();
 
   // If Stripe isn't configured for API-driven checkout, fall back to a pre-made Payment Link.
@@ -115,15 +121,16 @@ router.post("/checkout", async (req: Request, res: Response) => {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: priceId, quantity: 1 }],
-      // Always send users to an explicit success page with a button back to the app.
-      success_url: `${baseUrl}/payment-success`,
+      allow_promotion_codes: true,
+      // Return straight to the app (dashboard) and let the app refresh access in the background.
+      success_url: `${baseUrl}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/billing?canceled=true`,
       client_reference_id: userId,
       customer_email: userEmail,
       customer_creation: "always",
       metadata: {
         source: "autointegrate",
-        userId: userId || "anonymous",
+        userId,
       },
       // Add custom text to help users navigate back
       custom_text: {

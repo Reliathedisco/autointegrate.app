@@ -6,6 +6,7 @@ import { createBranch, commitAndPush } from "./git.js";
 import { commitFiles, generateDiffSummary } from "./commit.js";
 import { createPullRequest, generatePRBody, PRResult } from "./pr.js";
 import { generateFilesForIntegrations } from "../integrations/generator.js";
+import { PR_DRAFT, PR_LABELS } from "../config.js";
 import { sendJobStarted, sendJobCompleted, sendJobFailed } from "../notifications/webhook.js";
 
 export interface RunJobResult {
@@ -86,6 +87,8 @@ export async function runJob(job: Job): Promise<RunJobResult> {
       title: `AutoIntegrate: Add ${job.integrations.join(", ")}`,
       body: prBody,
       token,
+      draft: PR_DRAFT,
+      labels: PR_LABELS.length > 0 ? PR_LABELS : undefined,
     });
 
     if (!prResult.success) {

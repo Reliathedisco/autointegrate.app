@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../lib/api";
 import JobCard from "../components/JobCard";
+import { useAuth } from "../hooks/use-auth";
+import ProRequiredModal from "../components/ProRequiredModal";
 
 interface Integration {
   id: string;
@@ -9,6 +11,7 @@ interface Integration {
 }
 
 export default function Jobs() {
+  const { hasPaid } = useAuth();
   const [jobs, setJobs] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [repoUrl, setRepoUrl] = useState("");
@@ -16,11 +19,16 @@ export default function Jobs() {
   const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [showProModal, setShowProModal] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
 
   async function loadJobs() {
     try {
       const res = await api.get("/jobs");
       setJobs(res.data);
+      setLastRefresh(new Date());
     } catch (err) {
       console.error("Failed to load jobs:", err);
     }
@@ -40,6 +48,37 @@ export default function Jobs() {
     Promise.all([loadJobs(), loadIntegrations()]).finally(() => setIsLoading(false));
   }, []);
 
+  // Auto-refresh jobs when enabled
+  useEffect(() => {
+    if (!autoRefresh) return;
+    
+    const interval = setInterval(() => {
+      loadJobs();
+    }, 5000); // Refresh every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [autoRefresh]);
+
+  const handleRefreshJobs = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadJobs();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleRefreshJob = async (jobId: string) => {
+    try {
+      const res = await api.get(`/jobs/${jobId}`);
+      setJobs(prevJobs => 
+        prevJobs.map(j => j.id === jobId ? res.data : j)
+      );
+    } catch (err) {
+      console.error("Failed to refresh job:", err);
+    }
+  };
+
   const toggleIntegration = (id: string) => {
     setSelectedIntegrations(prev => 
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
@@ -48,6 +87,11 @@ export default function Jobs() {
 
   const handleCreateJob = async () => {
     if (!repoUrl || selectedIntegrations.length === 0) return;
+
+    if (!hasPaid) {
+      setShowProModal(true);
+      return;
+    }
     
     setIsCreating(true);
     try {
@@ -69,13 +113,62 @@ export default function Jobs() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Jobs</h1>
-        <button
-          onClick={() => setShowModal(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          + Create Job
-        </button>
+        <div>
+          <h1 className="text-3xl font-bold">Jobs</h1>
+          {lastRefresh && (
+            <p className="text-sm text-gray-500 mt-1">
+              Last updated: {lastRefresh.toLocaleTimeString()}
+              {autoRefresh && (
+                <span className="ml-2 inline-flex items-center">
+                  <span className="animate-pulse inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                  <span className="text-green-600">Auto-refreshing</span>
+                </span>
+              )}
+            </p>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          {/* Auto-refresh toggle */}
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={autoRefresh}
+              onChange={(e) => setAutoRefresh(e.target.checked)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-gray-700">Auto-refresh</span>
+          </label>
+          
+          {/* Manual refresh button */}
+          <button
+            onClick={handleRefreshJobs}
+            disabled={isRefreshing}
+            className="px-3 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+            title="Refresh jobs and PR status"
+          >
+            <svg 
+              className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`}
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+              />
+            </svg>
+            {isRefreshing ? "Refreshing..." : "Refresh"}
+          </button>
+          
+          <button
+            onClick={() => setShowModal(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            + Create Job
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -98,7 +191,8 @@ export default function Jobs() {
             jobs.map((job) => (
               <JobCard 
                 key={job.id} 
-                job={job} 
+                job={job}
+                onRefresh={handleRefreshJob}
                 onDelete={async (jobId) => {
                   try {
                     await api.delete(`/jobs/${jobId}`);
@@ -191,6 +285,13 @@ export default function Jobs() {
           </div>
         </div>
       )}
+
+      <ProRequiredModal
+        open={showProModal}
+        onClose={() => setShowProModal(false)}
+        actionLabel="creating jobs"
+        description="Create unlimited integration jobs, generate code, and manage runs."
+      />
     </div>
   );
 }
