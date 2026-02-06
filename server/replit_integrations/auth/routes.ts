@@ -105,7 +105,7 @@ export function registerAuthRoutes(app: Express): void {
       
       try {
         user = await authStorage.getUser(userId);
-        hasPaid = user?.hasPaid === "true";
+        hasPaid = user?.hasPaid === true;
       } catch (dbError) {
         console.warn("[/api/me] Database unavailable");
         return res.status(500).json({ message: "Database unavailable" });
@@ -145,7 +145,7 @@ export function registerAuthRoutes(app: Express): void {
       }
 
       // Check if user already paid in database; if not, try to verify with Stripe.
-      let hasPaid = user.hasPaid === "true";
+      let hasPaid = user.hasPaid === true;
       const refreshedHasPaid = await refreshHasPaidFromStripe({
         userId,
         email: user.email ?? null,
@@ -199,7 +199,7 @@ export function registerAuthRoutes(app: Express): void {
         firstName: user.firstName,
         lastName: user.lastName,
         profileImageUrl: user.profileImageUrl,
-        hasPaid: user.hasPaid === "true",
+        hasPaid: user.hasPaid === true,
       });
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -217,7 +217,7 @@ export function registerAuthRoutes(app: Express): void {
       }
 
       // Keep this endpoint backwards compatible, but make it actually refresh.
-      let hasPaid = user.hasPaid === "true";
+      let hasPaid = user.hasPaid === true;
       const refreshedHasPaid = await refreshHasPaidFromStripe({
         userId,
         email: user.email ?? null,

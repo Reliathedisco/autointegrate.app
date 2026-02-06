@@ -43,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         lastName: user.lastName,
         profileImageUrl: user.profileImageUrl,
       },
-      hasPaid: user.hasPaid === "true",
+      hasPaid: user.hasPaid === true,
     });
   } catch (error) {
     console.error("[/api/me] Error:", error);

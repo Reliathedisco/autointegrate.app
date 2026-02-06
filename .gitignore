@@ -52,3 +52,4 @@ coverage/
 sandbox/generated/
 metrics/data.json
 .vercel
+integrations/resend/gh_*/

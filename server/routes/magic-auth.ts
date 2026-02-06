@@ -60,7 +60,7 @@ router.post("/request-link", async (req: Request, res: Response) => {
     });
 
     // Create magic link
-    const magicLink = `${APP_URL}/auth/verify?token=${token}&email=${encodeURIComponent(normalizedEmail)}`;
+    const magicLink = `${APP_URL}/api/auth/verify?token=${token}&email=${encodeURIComponent(normalizedEmail)}`;
 
     // Send email via Resend
     if (process.env.RESEND_API_KEY) {

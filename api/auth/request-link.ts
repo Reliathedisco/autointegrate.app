@@ -37,7 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!user) {
       [user] = await db.insert(users).values({
         email: normalizedEmail,
-        hasPaid: "false",
+        hasPaid: false,
       }).returning();
     }
 
@@ -53,8 +53,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       expiresAt,
     });
 
-    // Create magic link
-    const magicLink = `${APP_URL}/auth/verify?token=${token}&email=${encodeURIComponent(normalizedEmail)}`;
+    // Create magic link (points to API endpoint which handles verification and redirects)
+    const magicLink = `${APP_URL}/api/auth/verify?token=${token}&email=${encodeURIComponent(normalizedEmail)}`;
 
     // Send email via Resend
     if (resend) {

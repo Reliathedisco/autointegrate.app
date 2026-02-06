@@ -37,7 +37,7 @@ class AuthStorage implements IAuthStorage {
         .insert(users)
         .values({
           ...userData,
-          hasPaid: "false",
+          hasPaid: false,
         })
         .returning();
       

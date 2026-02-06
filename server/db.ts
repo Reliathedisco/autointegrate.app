@@ -10,5 +10,12 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// For serverless environments, use smaller pool size and connection limits
+export const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL,
+  max: 1, // Limit connections for serverless
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+});
+
 export const db = drizzle(pool, { schema });

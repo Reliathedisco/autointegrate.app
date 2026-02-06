@@ -68,7 +68,7 @@ router.post(
           
           if (existingUser) {
             // Idempotency check: skip if already paid
-            if (existingUser.hasPaid) {
+            if (existingUser.hasPaid === true) {
               console.log(`[Stripe Webhook] ${timestamp} - SKIP: User ${userId} already marked as paid`);
               return res.status(200).json({ received: true, skipped: true });
             }
@@ -76,7 +76,7 @@ router.post(
             await db
               .update(users)
               .set({
-                hasPaid: "true",
+                hasPaid: true,
                 updatedAt: new Date(),
               })
               .where(eq(users.id, userId));

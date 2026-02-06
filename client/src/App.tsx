@@ -9,7 +9,6 @@ import Integrations from "./routes/Integrations";
 import Settings from "./routes/Settings";
 import Billing from "./routes/Billing";
 import PaymentSuccess from "./routes/PaymentSuccess";
-import AuthVerify from "./routes/AuthVerify";
 import Navbar from "./components/Navbar";
 import AuthGuard from "./components/AuthGuard";
 import { useAuth } from "./hooks/use-auth";
@@ -116,10 +115,6 @@ function AppRoutes() {
   const location = useLocation();
 
   // Public routes (no auth required)
-  if (location.pathname === "/auth/verify") {
-    return <AuthVerify />;
-  }
-
   if (location.pathname === "/payment-success") {
     return <PaymentSuccess />;
   }

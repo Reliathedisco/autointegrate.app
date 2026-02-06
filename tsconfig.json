@@ -16,7 +16,8 @@
   },
   "include": [
     "server/**/*",
-    "shared/**/*"
+    "shared/**/*",
+    "api/**/*"
   ],
   "exclude": [
     "node_modules",
