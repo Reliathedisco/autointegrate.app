@@ -7,7 +7,13 @@ import { getStripeClient } from "../utils/stripe.js";
 const router = Router();
 
 function getAppBaseUrl(req: Request): string {
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isProduction && process.env.PRODUCTION_URL) {
+    return process.env.PRODUCTION_URL;
+  }
   if (process.env.APP_URL) return process.env.APP_URL;
+  
   const origin = req.get("origin");
   return origin || "http://localhost:4000";
 }

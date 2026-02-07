@@ -16,8 +16,9 @@ import billingRoutes from "./routes/billing.js";
 import demoRoutes from "./routes/demo.js";
 import metricsRoutes from "./routes/metrics.js";
 import stripeWebhookRoutes from "./routes/stripe-webhook.js";
-import magicAuthRoutes from "./routes/magic-auth.js";
+import githubAuthRoutes from "./routes/github-auth.js";
 import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth/index.js";
+import passport from "passport";
 
 import { log } from "./utils/logger.js";
 
@@ -44,7 +45,7 @@ if (hasSessionConfig) {
     await setupAuth(app);
     registerAuthRoutes(app);
   } else {
-    // Simple session auth for magic links (no Replit OIDC)
+    // Session auth for GitHub OAuth
     const session = await import("express-session");
     const ConnectPgSimple = (await import("connect-pg-simple")).default;
     const PgStore = ConnectPgSimple(session.default);
@@ -65,14 +66,18 @@ if (hasSessionConfig) {
       })
     );
     
-    log.info("[Auth] Using magic link session auth");
+    // Initialize Passport for GitHub OAuth
+    app.use(passport.initialize());
+    app.use(passport.session());
+    
+    log.info("[Auth] Using GitHub OAuth session auth");
   }
 } else {
   log.warn("[Auth] No session config. Auth will not work.");
 }
 
 // --- ROUTES ---
-app.use("/api/auth", magicAuthRoutes);
+app.use("/api/auth", githubAuthRoutes);
 app.use("/api", apiRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/templates", templateRoutes);

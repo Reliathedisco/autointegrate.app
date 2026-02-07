@@ -23,7 +23,13 @@ function getUserFromCookie(req: VercelRequest): { userId: string; email: string 
 }
 
 function getAppBaseUrl(req: VercelRequest): string {
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+  
+  if (isProduction && process.env.PRODUCTION_URL) {
+    return process.env.PRODUCTION_URL;
+  }
   if (process.env.APP_URL) return process.env.APP_URL;
+  
   const host = req.headers.host || 'localhost:4000';
   const protocol = host.includes('localhost') ? 'http' : 'https';
   return `${protocol}://${host}`;
