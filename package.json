@@ -1,8 +1,11 @@
 {
-  "name": "autointegrate",
+  "name": "autointegrate-dashboard",
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
     "dev:server": "tsx watch server/index.ts",
