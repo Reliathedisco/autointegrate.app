@@ -14,22 +14,17 @@ export default function UserMenu() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center gap-2.5 p-2 rounded-lg hover:bg-claude-sidebar-hover text-left transition-colors"
+        className="w-full flex items-center gap-2 p-2 rounded hover:bg-gray-50 text-left"
       >
         {user.profileImageUrl ? (
           <img src={user.profileImageUrl} alt="" className="w-7 h-7 rounded-full" />
         ) : (
-          <div className="w-7 h-7 rounded-full bg-claude-primary flex items-center justify-center text-xs font-medium text-white">
+          <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600">
             {displayName.charAt(0).toUpperCase()}
           </div>
         )}
-        <div className="flex-1 min-w-0">
-          <span className="text-sm text-gray-300 truncate block">{displayName}</span>
-          {hasPaid && (
-            <span className="text-[10px] text-claude-primary font-medium">Pro</span>
-          )}
-        </div>
-        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <span className="flex-1 text-sm text-gray-700 truncate">{displayName}</span>
+        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
@@ -37,30 +32,22 @@ export default function UserMenu() {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute bottom-full left-0 right-0 mb-1 bg-claude-surface border border-claude-border rounded-lg shadow-lg z-20 py-1">
-            <div className="px-3 py-2 border-b border-claude-border-light">
-              <div className="text-xs text-claude-text-secondary truncate">{user.email}</div>
+          <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
+            <div className="px-3 py-2 border-b border-gray-100">
+              <div className="text-xs text-gray-500 truncate">{user.email}</div>
               {hasPaid ? (
-                <div className="text-xs text-claude-primary mt-0.5 font-medium">Pro</div>
+                <div className="text-xs text-green-600 mt-0.5">Pro</div>
               ) : (
-                <div className="text-xs text-claude-text-tertiary mt-0.5">Free</div>
+                <div className="text-xs text-gray-400 mt-0.5">Free</div>
               )}
             </div>
 
             <Link
               to="/billing"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 text-sm text-claude-text hover:bg-claude-bg transition-colors"
+              className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
             >
               {hasPaid ? "Billing" : "Upgrade to Pro"}
-            </Link>
-
-            <Link
-              to="/settings"
-              onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 text-sm text-claude-text hover:bg-claude-bg transition-colors"
-            >
-              Settings
             </Link>
 
             <button
@@ -68,7 +55,7 @@ export default function UserMenu() {
                 setIsOpen(false);
                 logout();
               }}
-              className="w-full text-left px-3 py-2 text-sm text-claude-text hover:bg-claude-bg transition-colors"
+              className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
             >
               Sign Out
             </button>

@@ -25,17 +25,20 @@ function PaymentNotification() {
     if (searchParams.get("paid") === "true") {
       setShow(true);
       setIsProcessing(true);
-
+      
+      // Poll for payment status with exponential backoff
       let attempts = 0;
       const maxAttempts = 5;
       const pollInterval = async () => {
         const result = await refetch();
         attempts++;
-
+        
+        // Check if payment verified
         if (result.data?.hasPaid) {
           console.log(`[Payment] Verified after ${attempts} attempt(s)`);
           setIsProcessing(false);
-
+          
+          // Clear the parameter after 2 seconds
           setTimeout(() => {
             setShow(false);
             searchParams.delete("paid");
@@ -43,18 +46,20 @@ function PaymentNotification() {
           }, 2000);
           return;
         }
-
+        
+        // Continue polling if not verified yet
         if (attempts < maxAttempts) {
-          const delay = Math.min(2000 * Math.pow(1.5, attempts - 1), 5000);
+          const delay = Math.min(2000 * Math.pow(1.5, attempts - 1), 5000); // 2s, 3s, 4.5s, 5s, 5s
           setTimeout(pollInterval, delay);
         } else {
           console.warn(`[Payment] Not verified after ${attempts} attempts`);
           setIsProcessing(false);
         }
       };
-
+      
+      // Start polling after 1 second to give webhook time
       const startPolling = setTimeout(pollInterval, 1000);
-
+      
       return () => {
         clearTimeout(startPolling);
       };
@@ -64,38 +69,38 @@ function PaymentNotification() {
   if (!show) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-50">
-      <div className={`border rounded-xl p-4 shadow-lg max-w-md ${
-        isProcessing
-          ? "bg-claude-primary-light border-claude-primary/20"
-          : "bg-claude-success-light border-claude-success/20"
+    <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top">
+      <div className={`border rounded-lg p-4 shadow-lg max-w-md ${
+        isProcessing 
+          ? "bg-blue-50 border-blue-200" 
+          : "bg-green-50 border-green-200"
       }`}>
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0">
             {isProcessing ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-claude-primary border-t-transparent"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent"></div>
             ) : (
-              <svg className="w-5 h-5 text-claude-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             )}
           </div>
           <div className="flex-1">
-            <h3 className={`font-medium text-sm ${isProcessing ? "text-claude-primary-hover" : "text-claude-success"}`}>
-              {isProcessing ? "Processing Payment..." : "Payment Verified"}
+            <h3 className={`font-semibold ${isProcessing ? "text-blue-900" : "text-green-900"}`}>
+              {isProcessing ? "Processing Payment..." : "Payment Verified!"}
             </h3>
-            <p className={`text-xs mt-0.5 ${isProcessing ? "text-claude-text-secondary" : "text-claude-success"}`}>
-              {isProcessing
-                ? "Confirming your payment..."
-                : "Welcome to Pro. All features unlocked."}
+            <p className={`text-sm mt-1 ${isProcessing ? "text-blue-700" : "text-green-700"}`}>
+              {isProcessing 
+                ? "Confirming your payment. This may take a moment..." 
+                : "Welcome to Pro. All features are now unlocked."}
             </p>
           </div>
           {!isProcessing && (
             <button
               onClick={() => setShow(false)}
-              className="flex-shrink-0 text-claude-success hover:text-claude-success/80"
+              className="flex-shrink-0 text-green-600 hover:text-green-800"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -109,6 +114,7 @@ function PaymentNotification() {
 function AppRoutes() {
   const location = useLocation();
 
+  // Public routes (no auth required)
   if (location.pathname === "/payment-success") {
     return <PaymentSuccess />;
   }
@@ -121,9 +127,9 @@ function AppRoutes() {
     <>
       <PaymentNotification />
       <AuthGuard>
-        <div className="flex min-h-screen bg-claude-bg">
+        <div className="flex min-h-screen bg-gray-50">
           <Navbar />
-          <main className="flex-1 p-8 overflow-auto">
+          <main className="flex-1 p-6">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/jobs" element={<Jobs />} />
