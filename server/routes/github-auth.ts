@@ -6,6 +6,7 @@ import { Strategy as GitHubStrategy, Profile } from "passport-github2";
 import { db } from "../db.js";
 import { users } from "../../shared/models/auth.js";
 import { eq } from "drizzle-orm";
+import { PORT } from "../config.js";
 
 const router = Router();
 
@@ -16,18 +17,18 @@ const isGitHubConfigured = Boolean(
 
 function getCallbackURL(): string {
   const isProduction = process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
-  
+
   // Use production URL in production, otherwise use APP_URL or localhost
   if (isProduction && process.env.PRODUCTION_URL) {
     return `${process.env.PRODUCTION_URL}/api/auth/github/callback`;
   }
-  
+
   if (process.env.APP_URL) {
     return `${process.env.APP_URL}/api/auth/github/callback`;
   }
-  
+
   // Default to localhost for development
-  return "http://localhost:4000/api/auth/github/callback";
+  return `http://localhost:${PORT}/api/auth/github/callback`;
 }
 
 if (isGitHubConfigured) {
