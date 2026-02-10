@@ -177,13 +177,8 @@ router.get(
       );
     }
 
-    // Check if user has paid to determine redirect
-    const hasPaid = req.user?.hasPaid === true;
-    if (hasPaid) {
-      res.redirect("/");
-    } else {
-      res.redirect("/billing");
-    }
+    // Always redirect to dashboard after login
+    res.redirect("/");
   }
 );
 

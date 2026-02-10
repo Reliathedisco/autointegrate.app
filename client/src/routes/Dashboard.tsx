@@ -44,7 +44,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-300 border-t-gray-600"></div>
+        <div className="animate-spin rounded-full h-6 w-6 border-2 border-claude-secondary border-t-claude-primary"></div>
       </div>
     );
   }
@@ -52,59 +52,82 @@ export default function Dashboard() {
   return (
     <div className="max-w-4xl mx-auto">
       {!hasPaid && <BillingBanner />}
-      <h1 className="text-2xl font-semibold text-gray-900 mb-6">Dashboard</h1>
+
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold text-claude-text">Dashboard</h1>
+        <p className="text-claude-text-secondary text-sm mt-1">Overview of your projects and activity</p>
+      </div>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         <Link
           to="/sandbox?demo=true&autoload=nextjs-starter"
-          className="p-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+          className="group p-5 bg-claude-primary rounded-xl hover:bg-claude-primary-hover transition-colors"
         >
-          <div className="font-medium">Try Demo</div>
-          <div className="text-emerald-100 text-sm">Explore without GitHub</div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <div className="font-medium text-white">Try Demo</div>
+              <div className="text-white/70 text-sm">Explore without GitHub</div>
+            </div>
+          </div>
         </Link>
         <Link
           to="/sandbox"
-          className="p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
+          className="group p-5 bg-claude-surface border border-claude-border rounded-xl hover:border-claude-primary/30 hover:shadow-sm transition-all"
         >
-          <div className="font-medium text-gray-900">Open Sandbox</div>
-          <div className="text-gray-500 text-sm">Load your own repository</div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-claude-primary-light flex items-center justify-center">
+              <svg className="w-5 h-5 text-claude-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+            </div>
+            <div>
+              <div className="font-medium text-claude-text">Open Sandbox</div>
+              <div className="text-claude-text-secondary text-sm">Load your own repository</div>
+            </div>
+          </div>
         </Link>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
-        <Link to="/jobs" className="p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300">
-          <div className="text-2xl font-semibold text-gray-900">{stats?.jobs || 0}</div>
-          <div className="text-gray-500 text-sm">Jobs</div>
+        <Link to="/jobs" className="p-5 bg-claude-surface border border-claude-border rounded-xl hover:border-claude-primary/30 hover:shadow-sm transition-all">
+          <div className="text-2xl font-semibold text-claude-text">{stats?.jobs || 0}</div>
+          <div className="text-claude-text-secondary text-sm mt-1">Jobs</div>
         </Link>
-        <Link to="/templates" className="p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300">
-          <div className="text-2xl font-semibold text-gray-900">{stats?.templates || 0}</div>
-          <div className="text-gray-500 text-sm">Templates</div>
+        <Link to="/templates" className="p-5 bg-claude-surface border border-claude-border rounded-xl hover:border-claude-primary/30 hover:shadow-sm transition-all">
+          <div className="text-2xl font-semibold text-claude-text">{stats?.templates || 0}</div>
+          <div className="text-claude-text-secondary text-sm mt-1">Templates</div>
         </Link>
-        <Link to="/integrations" className="p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300">
-          <div className="text-2xl font-semibold text-gray-900">{stats?.integrations || 0}</div>
-          <div className="text-gray-500 text-sm">Integrations</div>
+        <Link to="/integrations" className="p-5 bg-claude-surface border border-claude-border rounded-xl hover:border-claude-primary/30 hover:shadow-sm transition-all">
+          <div className="text-2xl font-semibold text-claude-text">{stats?.integrations || 0}</div>
+          <div className="text-claude-text-secondary text-sm mt-1">Integrations</div>
         </Link>
       </div>
 
       {/* Recent Jobs */}
-      <div className="bg-white border border-gray-200 rounded-lg">
-        <div className="px-4 py-3 border-b border-gray-100">
-          <h2 className="font-medium text-gray-900">Recent Jobs</h2>
+      <div className="bg-claude-surface border border-claude-border rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-claude-border-light">
+          <h2 className="font-medium text-claude-text">Recent Jobs</h2>
         </div>
         {stats?.recentJobs && stats.recentJobs.length > 0 ? (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-claude-border-light">
             {stats.recentJobs.map((job: any) => (
-              <div key={job.id} className="px-4 py-3 flex items-center justify-between">
+              <div key={job.id} className="px-5 py-3.5 flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-gray-900">{job.repo || "Unknown"}</div>
-                  <div className="text-xs text-gray-500">{job.integrations?.join(", ") || "No integrations"}</div>
+                  <div className="text-sm font-medium text-claude-text">{job.repo || "Unknown"}</div>
+                  <div className="text-xs text-claude-text-tertiary mt-0.5">{job.integrations?.join(", ") || "No integrations"}</div>
                 </div>
-                <span className={`text-xs px-2 py-1 rounded ${
-                  job.status === "completed" ? "bg-green-100 text-green-700" :
-                  job.status === "failed" ? "bg-red-100 text-red-700" :
-                  "bg-yellow-100 text-yellow-700"
+                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                  job.status === "completed" ? "bg-claude-success-light text-claude-success" :
+                  job.status === "failed" ? "bg-claude-danger-light text-claude-danger" :
+                  "bg-claude-warning-light text-claude-warning"
                 }`}>
                   {job.status || "pending"}
                 </span>
@@ -112,8 +135,11 @@ export default function Dashboard() {
             ))}
           </div>
         ) : (
-          <div className="px-4 py-8 text-center text-gray-500 text-sm">
-            No jobs yet. Start by opening the Sandbox.
+          <div className="px-5 py-10 text-center">
+            <div className="text-claude-text-tertiary text-sm">No jobs yet</div>
+            <Link to="/sandbox" className="text-claude-primary text-sm hover:underline mt-1 inline-block">
+              Get started in the Sandbox
+            </Link>
           </div>
         )}
       </div>
