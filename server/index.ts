@@ -69,7 +69,10 @@ if (hasSessionConfig) {
     // Initialize Passport for GitHub OAuth
     app.use(passport.initialize());
     app.use(passport.session());
-    
+
+    // Register /api/me and other auth routes for GitHub OAuth sessions
+    registerAuthRoutes(app);
+
     log.info("[Auth] Using GitHub OAuth session auth");
   }
 } else {
