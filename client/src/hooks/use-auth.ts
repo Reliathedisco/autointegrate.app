@@ -23,20 +23,22 @@ export function useAuth() {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUser = useCallback(async () => {
+    let freshHasPaid = false;
     try {
       setIsLoading(true);
       const res = await fetch("/api/me", {
         credentials: "include", // Include session cookie
       });
-      
+
       if (res.ok) {
         const data = await res.json();
         console.log("[useAuth] /api/me response:", {
           hasPaid: data.hasPaid,
           userId: data.user?.id,
         });
+        freshHasPaid = data.hasPaid === true;
         setUser(data.user || null);
-        setHasPaid(data.hasPaid === true);
+        setHasPaid(freshHasPaid);
       } else {
         console.log("[useAuth] /api/me returned", res.status);
         setUser(null);
@@ -49,8 +51,8 @@ export function useAuth() {
     } finally {
       setIsLoading(false);
     }
-    
-    return { data: { hasPaid } };
+
+    return { data: { hasPaid: freshHasPaid } };
   }, []);
 
   useEffect(() => {
